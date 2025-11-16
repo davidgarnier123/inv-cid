@@ -152,16 +152,16 @@ function App() {
                 </button>
               ) : (
                 <div className="session-active">
-                  <div className="session-info">
-                    <span className="session-badge">Session active</span>
-                    <span className="session-count">{sessionCodes.length} code(s) scanné(s)</span>
+                  <div className="session-info-compact">
+                    <span className="session-badge-compact">Session active</span>
+                    <span className="session-count-compact">{sessionCodes.length} code(s)</span>
                   </div>
-                  <div className="session-actions">
-                    <button onClick={endSession} className="end-session-btn">
-                      ✓ Terminer la session
+                  <div className="session-actions-compact">
+                    <button onClick={endSession} className="end-session-btn-compact" title="Terminer la session">
+                      ✓
                     </button>
-                    <button onClick={cancelSession} className="cancel-session-btn">
-                      ✕ Annuler
+                    <button onClick={cancelSession} className="cancel-session-btn-compact" title="Annuler">
+                      ✕
                     </button>
                   </div>
                 </div>

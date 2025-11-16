@@ -257,48 +257,53 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
 
   return (
     <div className="scanner-container">
-      <div className="scanner-header">
-        <h2>Scanner de codes-barres</h2>
-        {enabled && (
-          <button 
-            onClick={handleToggleScan} 
-            className={`scan-btn ${isScanning ? 'scanning' : ''}`}
-          >
-            {isScanning ? '⏸️ Arrêter' : '▶️ Démarrer'}
-          </button>
-        )}
-      </div>
-
-      {error && (
-        <div className="error-message">
-          ⚠️ {error}
+      <div className="scanner-layout">
+        <div className="scanner-header-compact">
+          <h2>Scanner de codes-barres</h2>
+          {enabled && (
+            <button 
+              onClick={handleToggleScan} 
+              className={`scan-btn-compact ${isScanning ? 'scanning' : ''}`}
+              title={isScanning ? 'Arrêter la session' : 'Démarrer la session'}
+            >
+              {isScanning ? '⏸️' : '▶️'}
+            </button>
+          )}
         </div>
-      )}
 
-      {debugInfo && isScanning && (
-        <div className="debug-info">
-          {debugInfo}
-        </div>
-      )}
-
-      <div className="video-wrapper">
-        <div 
-          id={scannerId}
-          style={{ width: '100%', height: '100%' }}
-          className={`scanner-video-container validation-level-${validationLevel}`}
-        />
-        {!isScanning && (
-          <div className="video-placeholder">
-            <p>📷 Appuyez sur "Démarrer" pour activer la caméra</p>
-          </div>
-        )}
-        {isScanning && validationLevel > 0 && (
-          <div className={`validation-indicator validation-level-${validationLevel}`}>
-            <div className="validation-progress">
-              <div className="validation-bar" style={{ width: `${(validationLevel / REQUIRED_DETECTIONS) * 100}%` }}></div>
+        <div className="camera-center">
+          {error && (
+            <div className="error-message-compact">
+              ⚠️ {error}
             </div>
+          )}
+
+          <div className="video-wrapper">
+            <div 
+              id={scannerId}
+              style={{ width: '100%', height: '100%' }}
+              className={`scanner-video-container validation-level-${validationLevel}`}
+            />
+            {!isScanning && (
+              <div className="video-placeholder">
+                <p>📷 Appuyez sur ▶️ pour activer la caméra</p>
+              </div>
+            )}
+            {isScanning && validationLevel > 0 && (
+              <div className={`validation-indicator validation-level-${validationLevel}`}>
+                <div className="validation-progress">
+                  <div className="validation-bar" style={{ width: `${(validationLevel / REQUIRED_DETECTIONS) * 100}%` }}></div>
+                </div>
+              </div>
+            )}
           </div>
-        )}
+
+          {debugInfo && isScanning && (
+            <div className="debug-info-compact">
+              {debugInfo}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

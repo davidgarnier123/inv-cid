@@ -1,50 +1,70 @@
 .scanner-container {
   background: white;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.scanner-header {
+.scanner-layout {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #f0f0f0;
+  gap: 0.75rem;
 }
 
-.scanner-header h2 {
-  font-size: 1.5rem;
+.scanner-header-compact {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.5rem 0;
+}
+
+.scanner-header-compact h2 {
+  font-size: 1.1rem;
   color: #333;
+  margin: 0;
+  font-weight: 600;
 }
 
-.scan-btn {
+.scan-btn-compact {
   background: #667eea;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 8px;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: 600;
   transition: all 0.3s;
   box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.scan-btn:hover {
+.scan-btn-compact:hover {
   background: #5568d3;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(102, 126, 234, 0.4);
 }
 
-.scan-btn.scanning {
+.scan-btn-compact.scanning {
   background: #ff4757;
   animation: pulse 2s infinite;
 }
 
-.scan-btn.scanning:hover {
+.scan-btn-compact.scanning:hover {
   background: #ff3838;
+}
+
+.camera-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
 }
 
 @keyframes pulse {
@@ -56,37 +76,43 @@
   }
 }
 
-.error-message {
+.error-message-compact {
   background: #fff3cd;
   color: #856404;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  border-left: 4px solid #ffc107;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border-left: 3px solid #ffc107;
+  font-size: 0.85rem;
+  width: 100%;
+  max-width: 640px;
+  text-align: center;
 }
 
-.debug-info {
+.debug-info-compact {
   background: #e7f3ff;
   color: #004085;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  border-left: 4px solid #0066cc;
-  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border-left: 3px solid #0066cc;
+  font-size: 0.8rem;
   font-family: 'Courier New', monospace;
+  width: 100%;
+  max-width: 640px;
+  text-align: center;
 }
 
 .video-wrapper {
   position: relative;
   width: 100%;
   max-width: 640px;
-  margin: 0 auto;
+  margin: 0;
   background: #000;
   border-radius: 12px;
   overflow: hidden;
   aspect-ratio: 4 / 3;
   min-height: 300px;
   transition: box-shadow 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Indicateur de validation avec changement de couleur */
@@ -255,18 +281,28 @@
 }
 
 @media (max-width: 768px) {
-  .scanner-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
+  .scanner-header-compact {
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
-  .scan-btn {
-    width: 100%;
+  .scanner-header-compact h2 {
+    font-size: 1rem;
   }
 
-  .scanner-header h2 {
-    text-align: center;
+  .scan-btn-compact {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .video-wrapper {
+    min-height: 250px;
+  }
+
+  .error-message-compact,
+  .debug-info-compact {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
   }
 }
 
