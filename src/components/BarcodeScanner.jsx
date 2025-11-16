@@ -78,10 +78,30 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
 
       const html5QrCode = html5QrCodeRef.current
 
-      // Configuration pour les codes-barres français (EAN-13, EAN-8, etc.)
+      // Configurationgit pour les codes-barres français (EAN-13, EAN-8, etc.)
+      // Calculer la taille optimale de la zone de scan pour détecter les petits codes-barres
+      const getOptimalScanBox = () => {
+        // Utiliser une zone plus grande pour mieux détecter les petits codes-barres
+        // On utilise une fonction pour calculer dynamiquement
+        const viewportWidth = window.innerWidth || 640
+        const viewportHeight = window.innerHeight || 480
+        
+        // Zone de scan plus grande : jusqu'à 90% de la largeur pour mieux capturer les petits codes
+        // Pour les codes-barres linéaires, on privilégie une zone large
+        const maxWidth = Math.min(viewportWidth * 0.9, 600)
+        const maxHeight = Math.min(viewportHeight * 0.5, 300)
+        
+        return {
+          width: Math.max(400, maxWidth),
+          height: Math.max(180, maxHeight)
+        }
+      }
+
+      const scanBox = getOptimalScanBox()
+
       const config = {
-        fps: 5, // Frames par seconde réduites pour plus de stabilité
-        qrbox: { width: 300, height: 200 }, // Zone de scan
+        fps: 10, // Frames par seconde augmentées pour meilleure détection
+        qrbox: scanBox, // Zone de scan optimisée pour petits codes-barres
         aspectRatio: 1.0,
         // Formats supportés - focus sur les codes-barres linéaires
         formatsToSupport: [
@@ -98,9 +118,12 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
           Html5QrcodeSupportedFormats.RSS_EXPANDED,
           Html5QrcodeSupportedFormats.QR_CODE
         ],
-        // Utiliser la caméra arrière sur mobile
+        // Utiliser la caméra arrière sur mobile avec meilleure résolution
         videoConstraints: {
-          facingMode: 'environment'
+          facingMode: 'environment',
+          // Demander une résolution plus élevée pour mieux voir les petits codes
+          width: { ideal: 1280, min: 640 },
+          height: { ideal: 720, min: 480 }
         }
       }
 
