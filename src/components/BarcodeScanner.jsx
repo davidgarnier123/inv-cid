@@ -149,7 +149,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
                   lastScannedCodeRef.current = code
                   console.log('Code validé:', code, 'Format:', format)
                   setValidationLevel(4) // Niveau validé (vert clair)
-                  vibrate([100, 50, 100]) // Vibration double pour validation
+                  vibrate([200, 100, 200, 100, 200]) // Vibration longue pour validation
                   setDebugInfo(`✓ Code validé: ${code} (${format})`)
                   onScan(code)
                   
