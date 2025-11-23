@@ -244,28 +244,25 @@ function App() {
                             {equipmentInfo && (
                               <div className="equipment-details">
                                 <span className="equipment-name">
-                                  📦 {equipmentInfo.brand} {equipmentInfo.model}
+                                  {equipmentInfo.brand} {equipmentInfo.model}
                                 </span>
-                                {equipmentInfo.equipment_type && (
-                                  <span className="equipment-type">
-                                    {equipmentInfo.equipment_type}
-                                  </span>
-                                )}
-                                {equipmentInfo.agent_name && (
-                                  <span className="equipment-agent">
-                                    👤 {equipmentInfo.agent_name}
-                                  </span>
-                                )}
+                                <div className="equipment-meta">
+                                  {equipmentInfo.equipment_type && (
+                                    <span className="equipment-type">
+                                      {equipmentInfo.equipment_type}
+                                    </span>
+                                  )}
+                                  {equipmentInfo.agent_name && (
+                                    <span className="equipment-agent">
+                                      👤 {equipmentInfo.agent_name}
+                                    </span>
+                                  )}
+                                </div>
                                 {equipmentInfo.connected_to && equipmentInfo.connected_to !== 'connecté à' && (
                                   <span className="equipment-connection">
                                     🔗 Connecté au: {equipmentInfo.connected_to}
                                   </span>
                                 )}
-                              </div>
-                            )}
-                            {equipmentInfo && (
-                              <div className="equipment-card-footer">
-                                {/* <span className="tap-hint">Appuyer pour détails</span> */}
                               </div>
                             )}
                           </div>

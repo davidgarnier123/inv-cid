@@ -14,7 +14,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
   const [debugInfo, setDebugInfo] = useState('')
   const [validationLevel, setValidationLevel] = useState(0) // 0 = aucune, 1-3 = progression, 4 = validé
   const [usingNative, setUsingNative] = useState(false)
-  const [forceZbar, setForceZbar] = useState(false) // Debug toggle
+  const [forceZbar, setForceZbar] = useState(true) // Default to ZBar as requested
 
   const lastScannedCodeRef = useRef(null)
 
