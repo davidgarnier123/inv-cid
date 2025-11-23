@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import BarcodeScanner from './components/BarcodeScanner'
 import InventoriesPage from './components/InventoriesPage'
 import SettingsPage from './components/SettingsPage'
@@ -8,14 +8,7 @@ import EquipmentModal, { getEquipmentIcon } from './components/EquipmentModal'
 
 import './App.css'
 
-// Liste fictive d'agents
-const AGENTS = [
-  { id: 1, name: 'Jean Dupont' },
-  { id: 2, name: 'Marie Martin' },
-  { id: 3, name: 'Pierre Durand' },
-  { id: 4, name: 'Sophie Bernard' },
-  { id: 5, name: 'Luc Moreau' }
-]
+
 
 function App() {
   const [currentPage, setCurrentPage] = useState('scan') // 'scan', 'inventories', 'settings', 'search'
@@ -23,7 +16,12 @@ function App() {
   const [sessionCodes, setSessionCodes] = useState([])
   const [inventories, setInventories] = useState([])
   const [showAgentForm, setShowAgentForm] = useState(false)
-  const [selectedAgent, setSelectedAgent] = useState('')
+
+  // Agent Autocomplete State
+  const [agentSearch, setAgentSearch] = useState('')
+  const [selectedAgent, setSelectedAgent] = useState(null) // Object { name, service }
+  const [showSuggestions, setShowSuggestions] = useState(false)
+
   const [showManualInput, setShowManualInput] = useState(false)
   const [manualCode, setManualCode] = useState('')
   const scannerRef = useRef(null)
@@ -59,6 +57,40 @@ function App() {
     }
   }, [])
 
+  // Extract unique agents from equipment database
+  const agentsList = useMemo(() => {
+    const uniqueAgents = new Map()
+
+    equipmentDatabase.forEach(item => {
+      if (item.agent_name && item.agent_name !== '""') {
+        // Use name as key to ensure uniqueness
+        if (!uniqueAgents.has(item.agent_name)) {
+          uniqueAgents.set(item.agent_name, {
+            name: item.agent_name,
+            service: item.org_path || 'Service inconnu'
+          })
+        }
+      }
+    })
+
+    return Array.from(uniqueAgents.values()).sort((a, b) => a.name.localeCompare(b.name))
+  }, [equipmentDatabase])
+
+  // Filter agents based on search
+  const filteredAgents = useMemo(() => {
+    if (!agentSearch) return []
+    const searchLower = agentSearch.toLowerCase()
+    return agentsList.filter(agent =>
+      agent.name.toLowerCase().includes(searchLower)
+    ).slice(0, 5) // Limit to 5 suggestions
+  }, [agentSearch, agentsList])
+
+  const handleAgentSelect = (agent) => {
+    setSelectedAgent(agent)
+    setAgentSearch(agent.name)
+    setShowSuggestions(false)
+  }
+
   // Get equipment info by barcode ID
   const getEquipmentInfo = (barcodeId) => {
     return equipmentDatabase.find(item => item.barcode_id === barcodeId)
@@ -81,7 +113,8 @@ function App() {
     setIsSessionActive(true)
     setSessionCodes([])
     setShowAgentForm(false)
-    setSelectedAgent('')
+    setSelectedAgent(null)
+    setAgentSearch('')
   }
 
   const endSession = () => {
@@ -341,20 +374,39 @@ function App() {
                 <p className="form-info">{sessionCodes.length} code(s) à associer</p>
 
                 <div className="form-group">
-                  <label htmlFor="agent-select">Sélectionner un agent :</label>
-                  <select
-                    id="agent-select"
-                    value={selectedAgent}
-                    onChange={(e) => setSelectedAgent(e.target.value)}
-                    className="agent-select"
-                  >
-                    <option value="">-- Choisir un agent --</option>
-                    {AGENTS.map(agent => (
-                      <option key={agent.id} value={agent.id}>
-                        {agent.name}
-                      </option>
-                    ))}
-                  </select>
+                  <label htmlFor="agent-search">Sélectionner un agent :</label>
+                  <div className="autocomplete-wrapper">
+                    <input
+                      id="agent-search"
+                      type="text"
+                      value={agentSearch}
+                      onChange={(e) => {
+                        setAgentSearch(e.target.value)
+                        setShowSuggestions(true)
+                        if (selectedAgent && e.target.value !== selectedAgent.name) {
+                          setSelectedAgent(null) // Clear selection if modified
+                        }
+                      }}
+                      onFocus={() => setShowSuggestions(true)}
+                      placeholder="Rechercher nom ou prénom..."
+                      className="agent-search-input"
+                      autoComplete="off"
+                    />
+                    {showSuggestions && agentSearch && filteredAgents.length > 0 && (
+                      <ul className="autocomplete-suggestions">
+                        {filteredAgents.map((agent, index) => (
+                          <li
+                            key={index}
+                            onClick={() => handleAgentSelect(agent)}
+                            className="suggestion-item"
+                          >
+                            <span className="suggestion-name">{agent.name}</span>
+                            <span className="suggestion-service">{agent.service}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </div>
 
                 <div className="form-actions">
