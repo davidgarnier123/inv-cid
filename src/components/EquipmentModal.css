@@ -89,20 +89,6 @@
         opacity: 0;
     }
 
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.equipment-detail-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 1.5rem;
-    border-radius: 16px 16px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
 }
 
 .equipment-detail-title {

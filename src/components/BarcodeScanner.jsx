@@ -14,7 +14,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
   const [debugInfo, setDebugInfo] = useState('')
   const [validationLevel, setValidationLevel] = useState(0) // 0 = aucune, 1-3 = progression, 4 = validé
   const [usingNative, setUsingNative] = useState(false)
-  const [forceZbar, setForceZbar] = useState(true) // Default to ZBar as requested
+  const [forceZbar, setForceZbar] = useState(false) // Default to auto/native as requested
 
   const lastScannedCodeRef = useRef(null)
 
@@ -351,7 +351,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
     <div className="scanner-container">
       <div className="scanner-layout">
         <div className="scanner-header-compact">
-          <h2>Scanner de codes-barres</h2>
+
           <div className="header-controls">
             {enabled && (
               <button

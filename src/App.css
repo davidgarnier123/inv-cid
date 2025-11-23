@@ -1,374 +1,665 @@
-    border: 1px solid #dee2e6;
-    padding: 0.6rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s;
-    opacity: 0.7;
-    display: flex;
-    align-items: center;
+.app {
+  width: 100%;
+  margin: 0 auto;
+  padding-bottom: 80px;
+  /* Space for navigation */
+}
+
+/* Session Controls */
+.session-controls {
+  margin-bottom: 1rem;
+}
+
+.start-session-btn {
+  width: 100%;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 1.2rem;
+  border-radius: 50px;
+  /* Rounded pill shape */
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2), 0 2px 4px -1px rgba(79, 70, 229, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.start-session-btn:hover {
+  background: #4338ca;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+}
+
+.start-session-btn:active {
+  transform: translateY(0);
+}
+
+.session-active {
+  background: white;
+  padding: 0.75rem 1rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid #e2e8f0;
+}
+
+.session-info-compact {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.session-badge-compact {
+  background: #10b981;
+  color: white;
+  padding: 0.35rem 0.8rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.session-count-compact {
+  font-weight: 600;
+  color: #334155;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.session-actions-compact {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.end-session-btn-compact,
+.cancel-session-btn-compact {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.end-session-btn-compact {
+  background: #10b981;
+  color: white;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.end-session-btn-compact:hover {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.cancel-session-btn-compact {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.cancel-session-btn-compact:hover {
+  background: #fecaca;
+  color: #dc2626;
+}
+
+/* Session Codes - Harmonious List View */
+.session-codes {
+  margin-top: 2rem;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+.session-codes-header {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0.5rem;
+}
+
+.session-codes-header span {
+  font-weight: 600;
+  color: #64748b;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.session-codes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.session-code-item {
+  background: white;
+  border-radius: 16px;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  /* Icon | Content | Action */
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.session-code-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  border-color: #cbd5e1;
+}
+
+/* Icon Column */
+.code-header-left {
+  display: contents;
+}
+
+.equipment-icon {
+  font-size: 1.5rem;
+  background: #f1f5f9;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  color: #475569;
+}
+
+/* Content Column */
+.code-header {
+  padding: 0;
+  display: contents;
+}
+
+.equipment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0;
+  border: none;
+  grid-column: 2;
+}
+
+.code-value {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 1rem;
+  background: transparent;
+  padding: 0;
+  border: none;
+  grid-column: 2;
+}
+
+.equipment-name {
+  font-weight: 700;
+  color: #334155;
+  font-size: 1.05rem;
+}
+
+.equipment-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.25rem;
+}
+
+.equipment-type {
+  font-size: 0.75rem;
+  color: #64748b;
+  background: transparent;
+  padding: 0;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.equipment-agent {
+  font-size: 0.75rem;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50px;
+  border: 1px solid #e2e8f0;
+}
+
+.equipment-connection {
+  font-size: 0.75rem;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 0.2rem 0.6rem;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+/* Action Column */
+.remove-code-btn {
+  grid-column: 3;
+  background: transparent;
+  color: #cbd5e1;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.5rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin: 0;
+}
+
+.remove-code-btn:hover {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
+.equipment-card-footer {
+  display: none;
+}
+
+.view-details-hint {
+  display: none;
+}
+
+/* Footer Actions */
+.session-codes-footer {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.manual-input-btn-footer {
+  background: white;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 0.8rem 1.5rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.manual-input-btn-footer:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+  transform: translateY(-1px);
+}
+
+/* Agent Form */
+.agent-form {
+  margin-top: 1.5rem;
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.agent-form h3 {
+  margin: 0 0 0.5rem 0;
+  color: #1e293b;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.form-info {
+  color: #64748b;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.agent-select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  color: #334155;
+}
+
+.agent-select:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.create-inventory-btn,
+.cancel-form-btn {
+  flex: 1;
+  padding: 0.8rem 1rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.create-inventory-btn {
+  background: #4f46e5;
+  color: white;
+  box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+}
+
+.create-inventory-btn:hover:not(:disabled) {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+.create-inventory-btn:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.cancel-form-btn {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.cancel-form-btn:hover {
+  background: #e2e8f0;
+}
+
+/* Manual Input Modal */
+.manual-input-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.manual-input-content {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.manual-input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.manual-input-header h3 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.close-modal-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.close-modal-btn:hover {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.manual-code-input {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  text-align: center;
+  transition: all 0.3s;
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.manual-code-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.input-hint {
+  display: block;
+  margin-top: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.add-manual-code-btn {
+  width: 100%;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2);
+}
+
+.add-manual-code-btn:hover {
+  background: #4338ca;
+  transform: translateY(-2px);
+}
+
+/* Inventories Page */
+.inventories-page {
+  margin-top: 1rem;
+}
+
+.inventories-page h2 {
+  margin: 0 0 1.5rem 0;
+  color: #1e293b;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.empty-inventories {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.empty-inventories p {
+  color: #64748b;
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+}
+
+.empty-hint {
+  color: #94a3b8 !important;
+  font-size: 0.95rem !important;
+}
+
+/* Inventories List */
+.inventories-list {
+  margin-top: 2rem;
+}
+
+.inventories-list h3 {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.inventory-item {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+}
+
+.inventory-agent {
+  font-size: 1.1rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.inventory-date {
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.inventory-codes {
+  color: #334155;
+  margin-top: 1rem;
+}
+
+.inventory-codes strong {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: #475569;
+  font-size: 0.9rem;
+}
+
+.codes-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.code-badge {
+  background: #f1f5f9;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.9rem;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    padding: 0.5rem;
+  }
+
+  .session-active {
+    flex-wrap: wrap;
     gap: 0.5rem;
-    }
+  }
 
-    .manual-input-btn-footer:hover {
-      background: #e9ecef;
-      opacity: 1;
-      border-color: #adb5bd;
-    }
+  .session-info-compact {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
 
-    /* Agent Form */
-    .agent-form {
-      margin-top: 1.5rem;
-      background: white;
-      border-radius: 8px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
+  .session-actions-compact {
+    flex: 1;
+    justify-content: flex-end;
+  }
 
-    .agent-form h3 {
-      margin: 0 0 0.5rem 0;
-      color: #333;
-      font-size: 1.3rem;
-    }
+  .session-badge-compact {
+    font-size: 0.7rem;
+    padding: 0.3rem 0.6rem;
+  }
 
-    .form-info {
-      color: #666;
-      margin-bottom: 1.5rem;
-      font-size: 0.95rem;
-    }
+  .session-count-compact {
+    font-size: 0.8rem;
+  }
 
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
+  .end-session-btn-compact,
+  .cancel-session-btn-compact {
+    min-width: 40px;
+    height: 40px;
+    font-size: 0.85rem;
+  }
 
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 600;
-      color: #333;
-    }
+  .inventory-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 
-    .agent-select {
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #e9ecef;
-      border-radius: 6px;
-      font-size: 1rem;
-      background: white;
-      cursor: pointer;
-      transition: border-color 0.3s;
-    }
-
-    .agent-select:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .create-inventory-btn,
-    .cancel-form-btn {
-      flex: 1;
-      padding: 0.75rem 1rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-
-    .create-inventory-btn {
-      background: #667eea;
-      color: white;
-    }
-
-    .create-inventory-btn:hover:not(:disabled) {
-      background: #5568d3;
-    }
-
-    .create-inventory-btn:disabled {
-      background: #cbd5e1;
-      cursor: not-allowed;
-    }
-
-    .cancel-form-btn {
-      background: #e9ecef;
-      color: #333;
-    }
-
-    .cancel-form-btn:hover {
-      background: #dee2e6;
-    }
-
-    /* Manual Input Modal */
-    .manual-input-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      padding: 1rem;
-    }
-
-    .manual-input-content {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .manual-input-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .manual-input-header h3 {
-      margin: 0;
-      color: #333;
-      font-size: 1.3rem;
-    }
-
-    .close-modal-btn {
-      background: transparent;
-      border: none;
-      font-size: 1.5rem;
-      color: #666;
-      cursor: pointer;
-      padding: 0;
-      width: 30px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      transition: all 0.2s;
-    }
-
-    .close-modal-btn:hover {
-      background: #f0f0f0;
-      color: #333;
-    }
-
-    .manual-code-input {
-      width: 100%;
-      padding: 0.75rem;
-      border: 2px solid #e9ecef;
-      border-radius: 6px;
-      font-size: 1.1rem;
-      font-family: 'Courier New', monospace;
-      text-align: center;
-      transition: border-color 0.3s;
-    }
-
-    .manual-code-input:focus {
-      outline: none;
-      border-color: #667eea;
-    }
-
-    .input-hint {
-      display: block;
-      margin-top: 0.5rem;
-      color: #999;
-      font-size: 0.85rem;
-    }
-
-    .add-manual-code-btn {
-      background: #667eea;
-      color: white;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.95rem;
-      font-weight: 600;
-      transition: all 0.3s;
-    }
-
-    .add-manual-code-btn:hover {
-      background: #5568d3;
-    }
-
-    /* Inventories Page */
-    .inventories-page {
-      margin-top: 1rem;
-    }
-
-    .inventories-page h2 {
-      margin: 0 0 1.5rem 0;
-      color: #333;
-      font-size: 1.5rem;
-    }
-
-    .empty-inventories {
-      text-align: center;
-      padding: 4rem 2rem;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .empty-inventories p {
-      color: #666;
-      font-size: 1.1rem;
-      margin: 0.5rem 0;
-    }
-
-    .empty-hint {
-      color: #999 !important;
-      font-size: 0.95rem !important;
-    }
-
-    /* Inventories List */
-    .inventories-list {
-      margin-top: 2rem;
-    }
-
-    .inventories-list h3 {
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 2px solid #f0f0f0;
-    }
-
-    .inventory-agent {
-      font-size: 1.1rem;
-      color: #333;
-    }
-
-    .inventory-date {
-      font-size: 0.9rem;
-      color: #666;
-    }
-
-    .inventory-codes {
-      color: #333;
-    }
-
-    .inventory-codes strong {
-      display: block;
-      margin-bottom: 0.75rem;
-      color: #333;
-    }
-
-    .codes-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .code-badge {
-      background: #f8f9fa;
-      padding: 0.4rem 0.75rem;
-      border-radius: 6px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.9rem;
-      border: 1px solid #e9ecef;
-      color: #333;
-    }
-
-    @media (max-width: 768px) {
-      .app-main {
-        padding: 0.5rem;
-      }
-
-      .session-active {
-        flex-wrap: wrap;
-        gap: 0.5rem;
-      }
-
-      .session-info-compact {
-        flex: 1 1 100%;
-        justify-content: space-between;
-      }
-
-      .session-actions-compact {
-        flex: 1;
-        justify-content: flex-end;
-      }
-
-      .session-badge-compact {
-        font-size: 0.7rem;
-        padding: 0.3rem 0.6rem;
-      }
-
-      .session-count-compact {
-        font-size: 0.8rem;
-      }
-
-      .end-session-btn-compact,
-      .cancel-session-btn-compact {
-        min-width: 36px;
-        height: 36px;
-        font-size: 0.85rem;
-      }
-
-      .inventory-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-
-      .form-actions {
-        flex-direction: column;
-      }
-    }
-
-    /* Equipment Icons and Clickable Cards */
-    .session-code-item {
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
-    }
-
-    .session-code-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
-      border-color: #667eea;
-    }
-
-    .code-header-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      flex: 1;
-    }
-
-    .equipment-icon {
-      font-size: 1.8rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 32px;
-    }
-
-    .equipment-connection {
-      color: #10b981;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-
-    .view-details-hint {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      font-size: 0.7rem;
-      color: #999;
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-
-    .session-code-item:hover .view-details-hint {
-      opacity: 1;
-    }
+  .form-actions {
+    flex-direction: column;
+  }
+}

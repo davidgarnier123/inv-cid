@@ -205,9 +205,7 @@ function App() {
 
 
                 <div className="session-codes">
-                  <div className="session-codes-header">
-                    <span>Codes scannés dans cette session ({sessionCodes.length})</span>
-                  </div>
+
                   {sessionCodes.length > 0 && (
                     <div className="session-codes-list">
                       {sessionCodes.map((code, index) => {
@@ -225,27 +223,16 @@ function App() {
                               }
                             }}
                           >
-                            <div className="code-header">
-                              <div className="code-header-left">
-                                <span className="equipment-icon">{equipmentIcon}</span>
-                                <span className="code-value">{code}</span>
-                              </div>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  removeCodeFromSession(code)
-                                }}
-                                className="remove-code-btn"
-                                title="Retirer ce code"
-                              >
-                                ×
-                              </button>
-                            </div>
-                            {equipmentInfo && (
+                            {/* Icon Column */}
+                            <span className="equipment-icon">{equipmentIcon}</span>
+
+                            {/* Content Column */}
+                            {equipmentInfo ? (
                               <div className="equipment-details">
                                 <span className="equipment-name">
                                   {equipmentInfo.brand} {equipmentInfo.model}
                                 </span>
+                                <span className="code-value">{code}</span>
                                 <div className="equipment-meta">
                                   {equipmentInfo.equipment_type && (
                                     <span className="equipment-type">
@@ -257,14 +244,28 @@ function App() {
                                       👤 {equipmentInfo.agent_name}
                                     </span>
                                   )}
+                                  {equipmentInfo.connected_to && equipmentInfo.connected_to !== 'connecté à' && (
+                                    <span className="equipment-connection">
+                                      🔗 {equipmentInfo.connected_to}
+                                    </span>
+                                  )}
                                 </div>
-                                {equipmentInfo.connected_to && equipmentInfo.connected_to !== 'connecté à' && (
-                                  <span className="equipment-connection">
-                                    🔗 Connecté au: {equipmentInfo.connected_to}
-                                  </span>
-                                )}
                               </div>
+                            ) : (
+                              <span className="code-value">{code}</span>
                             )}
+
+                            {/* Action Column */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                removeCodeFromSession(code)
+                              }}
+                              className="remove-code-btn"
+                              title="Retirer ce code"
+                            >
+                              ×
+                            </button>
                           </div>
                         )
                       })}
