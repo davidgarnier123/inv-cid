@@ -408,6 +408,7 @@ function App() {
             setEquipmentDatabase={setEquipmentDatabase}
             scannerSettings={scannerSettings}
             setScannerSettings={setScannerSettings}
+            onEquipmentClick={setSelectedEquipment}
           />
         )}
       </main>

@@ -5,7 +5,8 @@ function SettingsPage({
     equipmentDatabase,
     setEquipmentDatabase,
     scannerSettings,
-    setScannerSettings
+    setScannerSettings,
+    onEquipmentClick
 }) {
     const [databaseMeta, setDatabaseMeta] = useState(null)
     const [uploadStatus, setUploadStatus] = useState(null)
@@ -258,10 +259,10 @@ Philips;Moniteur;242S9JML/00;UK02443026192;/Services/IT/Lyon;Martin Marie;2025/0
                 {equipmentDatabase.length > 0 && (
                     <div className="database-preview">
                         <div className="preview-header">
-                            <h3>Aperçu de la base de données</h3>
+                            <h3>Recherche dans la base de données ({filteredDatabase.length} résultats)</h3>
                             <input
                                 type="text"
-                                placeholder="🔍 Rechercher..."
+                                placeholder="🔍 Rechercher par ID, marque, modèle, agent, type..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="search-input"
@@ -271,31 +272,49 @@ Philips;Moniteur;242S9JML/00;UK02443026192;/Services/IT/Lyon;Martin Marie;2025/0
                             <table className="preview-table">
                                 <thead>
                                     <tr>
-                                        <th>N° Série</th>
+                                        <th>ID (7 chiffres)</th>
                                         <th>Marque</th>
                                         <th>Type</th>
                                         <th>Modèle</th>
                                         <th>Agent</th>
+                                        <th>N° Série</th>
                                         <th>Date acquisition</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {displayedItems.map((item, index) => (
-                                        <tr key={index}>
-                                            <td className="barcode-cell">{item.serial_number || item.barcode_id}</td>
+                                    {filteredDatabase.slice(0, 50).map((item, index) => (
+                                        <tr
+                                            key={index}
+                                            onClick={() => {
+                                                if (onEquipmentClick) {
+                                                    onEquipmentClick(item)
+                                                }
+                                            }}
+                                            className="equipment-row"
+                                            title="Cliquer pour voir les détails"
+                                        >
+                                            <td className="barcode-cell id-cell">{item.barcode_id || item.internal_id}</td>
                                             <td>{item.brand || '-'}</td>
-                                            <td>{item.equipment_type || '-'}</td>
+                                            <td>
+                                                <span className="type-badge">{item.equipment_type || '-'}</span>
+                                            </td>
                                             <td>{item.model || '-'}</td>
                                             <td>{item.agent_name || '-'}</td>
+                                            <td className="serial-cell">{item.serial_number || '-'}</td>
                                             <td>{item.acquisition_date || '-'}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
-                        {filteredDatabase.length > 10 && (
+                        {filteredDatabase.length > 50 && (
                             <p className="preview-footer">
-                                Affichage de 10 sur {filteredDatabase.length} résultats
+                                Affichage de 50 sur {filteredDatabase.length} résultats (affinez votre recherche)
+                            </p>
+                        )}
+                        {filteredDatabase.length === 0 && searchTerm && (
+                            <p className="no-results">
+                                Aucun résultat trouvé pour "{searchTerm}"
                             </p>
                         )}
                     </div>

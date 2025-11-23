@@ -414,3 +414,41 @@
         width: 100%;
     }
 }
+/* Equipment search table row cliquable */
+.equipment-row {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.equipment-row:hover {
+  background: #f0f4ff;
+  transform: scale(1.01);
+}
+
+.id-cell {
+  font-weight: 700;
+  color: #667eea;
+  font-family: 'Courier New', monospace;
+}
+
+.type-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  background: #e7f3ff;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.serial-cell {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.no-results {
+  text-align: center;
+  padding: 2rem;
+  color: #999;
+  font-style: italic;
+}
