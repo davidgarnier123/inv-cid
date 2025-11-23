@@ -5,7 +5,7 @@ import SettingsPage from './components/SettingsPage'
 import DatabaseSearch from './components/DatabaseSearch'
 import Navigation from './components/Navigation'
 import EquipmentModal, { getEquipmentIcon } from './components/EquipmentModal'
-import PeripheralGraph from './components/PeripheralGraph'
+
 import './App.css'
 
 // Liste fictive d'agents
@@ -202,13 +202,7 @@ function App() {
                   vibrationEnabled={scannerSettings.vibrationEnabled}
                 />
 
-                {/* Graph Visualization for Session */}
-                {sessionCodes.length > 0 && (
-                  <PeripheralGraph
-                    equipmentDatabase={equipmentDatabase}
-                    sessionCodes={sessionCodes}
-                  />
-                )}
+
 
                 <div className="session-codes">
                   <div className="session-codes-header">

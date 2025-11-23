@@ -104,473 +104,389 @@
 /* Session Codes */
 .session-codes {
   margin-top: 1.5rem;
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 
-.session-codes-header {
-  margin-bottom: 1rem;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.code-value {
-  font-family: 'Courier New', monospace;
-  font-weight: 600;
-  color: #333;
-}
-
-.equipment-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid #e0e0e0;
-  font-size: 0.85rem;
-}
-
-.equipment-name {
-  font-weight: 600;
-  color: #667eea;
-}
-
-.equipment-type {
-  color: #666;
-  font-size: 0.8rem;
-}
-
-.equipment-agent {
-  color: #666;
-  font-size: 0.8rem;
-}
-
-.remove-code-btn {
-  background: #ef4444;
-  color: white;
-  border: none;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1.2rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-
-.remove-code-btn:hover {
-  background: #dc2626;
-}
-
-.session-codes-footer {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e9ecef;
-  display: flex;
-  justify-content: center;
-}
-
-.manual-input-btn-footer {
-  background: #f8f9fa;
-  color: #666;
-  border: 1px solid #dee2e6;
-  padding: 0.6rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.3s;
-  opacity: 0.7;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.manual-input-btn-footer:hover {
-  background: #e9ecef;
-  opacity: 1;
-  border-color: #adb5bd;
-}
-
-/* Agent Form */
-.agent-form {
-  margin-top: 1.5rem;
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.agent-form h3 {
-  margin: 0 0 0.5rem 0;
-  color: #333;
-  font-size: 1.3rem;
-}
-
-.form-info {
-  color: #666;
-  margin-bottom: 1.5rem;
-  font-size: 0.95rem;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.agent-select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 2px solid #e9ecef;
-  border-radius: 6px;
-  font-size: 1rem;
-  background: white;
-  cursor: pointer;
-  transition: border-color 0.3s;
-}
-
-.agent-select:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.form-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.create-inventory-btn,
-.cancel-form-btn {
-  flex: 1;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.create-inventory-btn {
-  background: #667eea;
-  color: white;
-}
-
-.create-inventory-btn:hover:not(:disabled) {
-  background: #5568d3;
-}
-
-.create-inventory-btn:disabled {
-  background: #cbd5e1;
-  cursor: not-allowed;
-}
-
-.cancel-form-btn {
-  background: #e9ecef;
-  color: #333;
-}
-
-.cancel-form-btn:hover {
-  background: #dee2e6;
-}
-
-/* Manual Input Modal */
-.manual-input-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.manual-input-content {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  max-width: 400px;
-  width: 100%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.manual-input-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.manual-input-header h3 {
-  margin: 0;
-  color: #333;
-  font-size: 1.3rem;
-}
-
-.close-modal-btn {
-  background: transparent;
-  border: none;
-  font-size: 1.5rem;
-  color: #666;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.2s;
-}
-
-.close-modal-btn:hover {
-  background: #f0f0f0;
-  color: #333;
-}
-
-.manual-code-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 2px solid #e9ecef;
-  border-radius: 6px;
-  font-size: 1.1rem;
-  font-family: 'Courier New', monospace;
-  text-align: center;
-  transition: border-color 0.3s;
-}
-
-.manual-code-input:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.input-hint {
-  display: block;
-  margin-top: 0.5rem;
-  color: #999;
-  font-size: 0.85rem;
-}
-
-.add-manual-code-btn {
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.add-manual-code-btn:hover {
-  background: #5568d3;
-}
-
-/* Inventories Page */
-.inventories-page {
-  margin-top: 1rem;
-}
-
-.inventories-page h2 {
-  margin: 0 0 1.5rem 0;
-  color: #333;
-  font-size: 1.5rem;
-}
-
-.empty-inventories {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.empty-inventories p {
-  color: #666;
-  font-size: 1.1rem;
-  margin: 0.5rem 0;
-}
-
-.empty-hint {
-  color: #999 !important;
-  font-size: 0.95rem !important;
-}
-
-/* Inventories List */
-.inventories-list {
-  margin-top: 2rem;
-}
-
-.inventories-list h3 {
-  margin: 0 0 1rem 0;
-  color: #333;
-  font-size: 1.3rem;
-}
-
-.inventories {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.inventory-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #667eea;
-}
-
-.inventory-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #f0f0f0;
-}
-
-.inventory-agent {
-  font-size: 1.1rem;
-  color: #333;
-}
-
-.inventory-date {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.inventory-codes {
-  color: #333;
-}
-
-.inventory-codes strong {
-  display: block;
-  margin-bottom: 0.75rem;
-  color: #333;
-}
-
-.codes-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.code-badge {
-  background: #f8f9fa;
-  padding: 0.4rem 0.75rem;
-  border-radius: 6px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
-  border: 1px solid #e9ecef;
-  color: #333;
-}
-
-@media (max-width: 768px) {
-  .app-main {
-    padding: 0.5rem;
+  .session-codes-footer {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: center;
   }
 
-  .session-active {
+  .manual-input-btn-footer {
+    background: #f8f9fa;
+    color: #666;
+    border: 1px solid #dee2e6;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .manual-input-btn-footer:hover {
+    background: #e9ecef;
+    opacity: 1;
+    border-color: #adb5bd;
+  }
+
+  /* Agent Form */
+  .agent-form {
+    margin-top: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .agent-form h3 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+    font-size: 1.3rem;
+  }
+
+  .form-info {
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .agent-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.3s;
+  }
+
+  .agent-select:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .create-inventory-btn,
+  .cancel-form-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  .create-inventory-btn {
+    background: #667eea;
+    color: white;
+  }
+
+  .create-inventory-btn:hover:not(:disabled) {
+    background: #5568d3;
+  }
+
+  .create-inventory-btn:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+  }
+
+  .cancel-form-btn {
+    background: #e9ecef;
+    color: #333;
+  }
+
+  .cancel-form-btn:hover {
+    background: #dee2e6;
+  }
+
+  /* Manual Input Modal */
+  .manual-input-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+  }
+
+  .manual-input-content {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .manual-input-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .manual-input-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.3rem;
+  }
+
+  .close-modal-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+
+  .close-modal-btn:hover {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  .manual-code-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    transition: border-color 0.3s;
+  }
+
+  .manual-code-input:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+
+  .input-hint {
+    display: block;
+    margin-top: 0.5rem;
+    color: #999;
+    font-size: 0.85rem;
+  }
+
+  .add-manual-code-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s;
+  }
+
+  .add-manual-code-btn:hover {
+    background: #5568d3;
+  }
+
+  /* Inventories Page */
+  .inventories-page {
+    margin-top: 1rem;
+  }
+
+  .inventories-page h2 {
+    margin: 0 0 1.5rem 0;
+    color: #333;
+    font-size: 1.5rem;
+  }
+
+  .empty-inventories {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .empty-inventories p {
+    color: #666;
+    font-size: 1.1rem;
+    margin: 0.5rem 0;
+  }
+
+  .empty-hint {
+    color: #999 !important;
+    font-size: 0.95rem !important;
+  }
+
+  /* Inventories List */
+  .inventories-list {
+    margin-top: 2rem;
+  }
+
+  .inventories-list h3 {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
+  }
+
+  .inventory-agent {
+    font-size: 1.1rem;
+    color: #333;
+  }
+
+  .inventory-date {
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .inventory-codes {
+    color: #333;
+  }
+
+  .inventory-codes strong {
+    display: block;
+    margin-bottom: 0.75rem;
+    color: #333;
+  }
+
+  .codes-grid {
+    display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
   }
 
-  .session-info-compact {
-    flex: 1 1 100%;
-    justify-content: space-between;
+  .code-badge {
+    background: #f8f9fa;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    border: 1px solid #e9ecef;
+    color: #333;
   }
 
-  .session-actions-compact {
+  @media (max-width: 768px) {
+    .app-main {
+      padding: 0.5rem;
+    }
+
+    .session-active {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .session-info-compact {
+      flex: 1 1 100%;
+      justify-content: space-between;
+    }
+
+    .session-actions-compact {
+      flex: 1;
+      justify-content: flex-end;
+    }
+
+    .session-badge-compact {
+      font-size: 0.7rem;
+      padding: 0.3rem 0.6rem;
+    }
+
+    .session-count-compact {
+      font-size: 0.8rem;
+    }
+
+    .end-session-btn-compact,
+    .cancel-session-btn-compact {
+      min-width: 36px;
+      height: 36px;
+      font-size: 0.85rem;
+    }
+
+    .inventory-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .form-actions {
+      flex-direction: column;
+    }
+  }
+
+  /* Equipment Icons and Clickable Cards */
+  .session-code-item {
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+  }
+
+  .session-code-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+  }
+
+  .code-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     flex: 1;
-    justify-content: flex-end;
   }
 
-  .session-badge-compact {
-    font-size: 0.7rem;
-    padding: 0.3rem 0.6rem;
+  .equipment-icon {
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
   }
 
-  .session-count-compact {
+  .equipment-connection {
+    color: #10b981;
     font-size: 0.8rem;
+    font-weight: 500;
   }
 
-  .end-session-btn-compact,
-  .cancel-session-btn-compact {
-    min-width: 36px;
-    height: 36px;
-    font-size: 0.85rem;
+  .view-details-hint {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 0.7rem;
+    color: #999;
+    opacity: 0;
+    transition: opacity 0.3s;
   }
 
-  .inventory-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+  .session-code-item:hover .view-details-hint {
+    opacity: 1;
   }
-
-  .form-actions {
-    flex-direction: column;
-  }
-}
-
-/* Equipment Icons and Clickable Cards */
-.session-code-item {
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
-}
-
-.session-code-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
-  border-color: #667eea;
-}
-
-.code-header-left {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex: 1;
-}
-
-.equipment-icon {
-  font-size: 1.8rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-}
-
-.equipment-connection {
-  color: #10b981;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.view-details-hint {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  font-size: 0.7rem;
-  color: #999;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.session-code-item:hover .view-details-hint {
-  opacity: 1;
-}
