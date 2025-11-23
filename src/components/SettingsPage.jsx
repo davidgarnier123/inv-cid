@@ -45,7 +45,7 @@ function SettingsPage({
                 // 12: Connecté à
 
                 const obj = {
-                    barcode_id: values[3] || '', // Numéro de série = barcode
+                    barcode_id: values[10] || '', // ID interne (7 chiffres) = CODE-BARRES
                     brand: values[0] || '',
                     equipment_type: values[1] || '',
                     model: values[2] || '',
