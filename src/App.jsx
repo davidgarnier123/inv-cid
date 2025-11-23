@@ -4,7 +4,6 @@ import InventoriesPage from './components/InventoriesPage'
 import SettingsPage from './components/SettingsPage'
 import EquipmentModal, { getEquipmentIcon } from './components/EquipmentModal'
 import './App.css'
-import './EquipmentModal.css'
 
 // Liste fictive d'agents
 const AGENTS = [
