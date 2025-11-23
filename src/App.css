@@ -664,6 +664,44 @@
   }
 }
 
+.inventory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.inventory-info {
+  flex: 1;
+}
+
+.inventory-service {
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 400;
+  margin-left: 0.5rem;
+}
+
+.delete-inventory-btn {
+  background: #fee2e2;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.2s;
+  color: #ef4444;
+}
+
+.delete-inventory-btn:hover {
+  background: #fecaca;
+  transform: scale(1.05);
+}
+
 /* Autocomplete Styles */
 .autocomplete-wrapper {
   position: relative;

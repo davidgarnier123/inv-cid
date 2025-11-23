@@ -55,7 +55,21 @@ function App() {
         console.error('Error loading scanner settings:', e)
       }
     }
+
+    const savedInventories = localStorage.getItem('inventories')
+    if (savedInventories) {
+      try {
+        setInventories(JSON.parse(savedInventories))
+      } catch (e) {
+        console.error('Error loading inventories:', e)
+      }
+    }
   }, [])
+
+  // Save inventories to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('inventories', JSON.stringify(inventories))
+  }, [inventories])
 
   // Extract unique agents from equipment database
   const agentsList = useMemo(() => {
@@ -146,10 +160,9 @@ function App() {
   const createInventory = () => {
     if (!selectedAgent || sessionCodes.length === 0) return
 
-    const agent = AGENTS.find(a => a.id === parseInt(selectedAgent))
     const newInventory = {
       id: Date.now(),
-      agent: agent,
+      agent: selectedAgent, // selectedAgent is now the object {name, service}
       codes: [...sessionCodes],
       date: new Date().toLocaleString('fr-FR'),
       count: sessionCodes.length
@@ -159,7 +172,15 @@ function App() {
     setIsSessionActive(false)
     setSessionCodes([])
     setShowAgentForm(false)
-    setSelectedAgent('')
+    setSelectedAgent(null)
+    setAgentSearch('')
+    setCurrentPage('inventories') // Redirect to inventories page
+  }
+
+  const deleteInventory = (id) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette fiche d\'inventaire ?')) {
+      setInventories(prev => prev.filter(inv => inv.id !== id))
+    }
   }
 
   const removeCodeFromSession = (code) => {
@@ -434,7 +455,10 @@ function App() {
         )}
 
         {currentPage === 'inventories' && (
-          <InventoriesPage inventories={inventories} />
+          <InventoriesPage
+            inventories={inventories}
+            onDelete={deleteInventory}
+          />
         )}
 
         {currentPage === 'settings' && (
