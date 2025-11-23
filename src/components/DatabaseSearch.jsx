@@ -95,7 +95,7 @@ function DatabaseSearch({ equipmentDatabase, onEquipmentClick }) {
                                     )}
                                 </div>
                                 <div className="equipment-card-footer">
-                                    <span className="tap-hint">Appuyer pour détails</span>
+                                    {/* <span className="tap-hint">Appuyer pour détails</span> */}
                                 </div>
                             </div>
                         )

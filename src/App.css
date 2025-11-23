@@ -112,32 +112,6 @@
 
 .session-codes-header {
   margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #f0f0f0;
-  font-weight: 600;
-  color: #333;
-}
-
-.session-codes-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.session-code-item {
-  background: #f8f9fa;
-  padding: 0.75rem;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  border: 1px solid #e9ecef;
-  min-width: 200px;
-}
-
-.code-header {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
 }

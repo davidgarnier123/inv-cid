@@ -9,9 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@undecaf/zbar-wasm": "^0.9.15",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "@undecaf/zbar-wasm": "^0.9.15"
+    "reactflow": "^11.11.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

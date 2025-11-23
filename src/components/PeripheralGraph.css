@@ -1,0 +1,34 @@
+.peripheral-graph-container {
+    padding: 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.graph-header {
+    margin-bottom: 1rem;
+}
+
+.graph-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.graph-header p {
+    margin: 0.5rem 0 0 0;
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .peripheral-graph-container {
+        padding: 0.5rem;
+    }
+
+    .graph-header h2 {
+        font-size: 1.2rem;
+    }
+}

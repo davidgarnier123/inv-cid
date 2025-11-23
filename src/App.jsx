@@ -5,6 +5,7 @@ import SettingsPage from './components/SettingsPage'
 import DatabaseSearch from './components/DatabaseSearch'
 import Navigation from './components/Navigation'
 import EquipmentModal, { getEquipmentIcon } from './components/EquipmentModal'
+import PeripheralGraph from './components/PeripheralGraph'
 import './App.css'
 
 // Liste fictive d'agents
@@ -201,6 +202,14 @@ function App() {
                   vibrationEnabled={scannerSettings.vibrationEnabled}
                 />
 
+                {/* Graph Visualization for Session */}
+                {sessionCodes.length > 0 && (
+                  <PeripheralGraph
+                    equipmentDatabase={equipmentDatabase}
+                    sessionCodes={sessionCodes}
+                  />
+                )}
+
                 <div className="session-codes">
                   <div className="session-codes-header">
                     <span>Codes scannés dans cette session ({sessionCodes.length})</span>
@@ -261,7 +270,9 @@ function App() {
                               </div>
                             )}
                             {equipmentInfo && (
-                              <span className="view-details-hint">👁️ Cliquer pour détails</span>
+                              <div className="equipment-card-footer">
+                                {/* <span className="tap-hint">Appuyer pour détails</span> */}
+                              </div>
                             )}
                           </div>
                         )
