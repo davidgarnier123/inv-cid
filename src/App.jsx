@@ -2,7 +2,9 @@ import { useState, useRef, useEffect } from 'react'
 import BarcodeScanner from './components/BarcodeScanner'
 import InventoriesPage from './components/InventoriesPage'
 import SettingsPage from './components/SettingsPage'
+import EquipmentModal, { getEquipmentIcon } from './components/EquipmentModal'
 import './App.css'
+import './EquipmentModal.css'
 
 // Liste fictive d'agents
 const AGENTS = [
@@ -23,6 +25,9 @@ function App() {
   const [showManualInput, setShowManualInput] = useState(false)
   const [manualCode, setManualCode] = useState('')
   const scannerRef = useRef(null)
+
+  // Equipment modal state
+  const [selectedEquipment, setSelectedEquipment] = useState(null)
 
   // Equipment database and scanner settings
   const [equipmentDatabase, setEquipmentDatabase] = useState([])
@@ -232,12 +237,24 @@ function App() {
                     <div className="session-codes-list">
                       {sessionCodes.map((code, index) => {
                         const equipmentInfo = getEquipmentInfo(code)
+                        const equipmentIcon = equipmentInfo ? getEquipmentIcon(equipmentInfo.equipment_type) : '📦'
+
                         return (
-                          <div key={index} className="session-code-item">
+                          <div
+                            key={index}
+                            className="session-code-item"
+                            onClick={() => equipmentInfo && setSelectedEquipment(equipmentInfo)}
+                          >
                             <div className="code-header">
-                              <span className="code-value">{code}</span>
+                              <div className="code-header-left">
+                                <span className="equipment-icon">{equipmentIcon}</span>
+                                <span className="code-value">{code}</span>
+                              </div>
                               <button
-                                onClick={() => removeCodeFromSession(code)}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  removeCodeFromSession(code)
+                                }}
                                 className="remove-code-btn"
                                 title="Retirer ce code"
                               >
@@ -247,7 +264,7 @@ function App() {
                             {equipmentInfo && (
                               <div className="equipment-details">
                                 <span className="equipment-name">
-                                  📦 {equipmentInfo.equipment_name || 'Sans nom'}
+                                  📦 {equipmentInfo.brand} {equipmentInfo.model}
                                 </span>
                                 {equipmentInfo.equipment_type && (
                                   <span className="equipment-type">
@@ -259,7 +276,15 @@ function App() {
                                     👤 {equipmentInfo.agent_name}
                                   </span>
                                 )}
+                                {equipmentInfo.connected_to && equipmentInfo.connected_to !== 'connecté à' && (
+                                  <span className="equipment-connection">
+                                    🔗 Connecté au: {equipmentInfo.connected_to}
+                                  </span>
+                                )}
                               </div>
+                            )}
+                            {equipmentInfo && (
+                              <span className="view-details-hint">👁️ Cliquer pour détails</span>
                             )}
                           </div>
                         )
@@ -382,6 +407,14 @@ function App() {
           />
         )}
       </main>
+
+      {/* Equipment Detail Modal */}
+      {selectedEquipment && (
+        <EquipmentModal
+          equipment={selectedEquipment}
+          onClose={() => setSelectedEquipment(null)}
+        />
+      )}
     </div>
   )
 }

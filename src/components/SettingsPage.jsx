@@ -23,25 +23,43 @@ function SettingsPage({
     const parseCSV = (csvText) => {
         try {
             const lines = csvText.split('\n').filter(line => line.trim())
-            if (lines.length < 2) {
+            if (lines.length < 1) {
                 throw new Error('Le fichier CSV doit contenir au moins une ligne de données')
             }
 
-            // Parse headers
-            const headers = lines[0].split(',').map(h => h.trim())
+            // Check if first line looks like a header (contains text like "Marque" or "Type")
+            const firstLine = lines[0].toLowerCase()
+            const hasHeader = firstLine.includes('marque') || firstLine.includes('type') || firstLine.includes('modèle')
 
-            // Verify required columns
-            if (!headers.includes('barcode_id')) {
-                throw new Error('La colonne "barcode_id" est requise')
-            }
+            // If has header, skip it; otherwise parse from line 0
+            const dataLines = hasHeader ? lines.slice(1) : lines
 
-            // Parse data
-            const data = lines.slice(1).map((line, index) => {
-                const values = line.split(',').map(v => v.trim())
-                const obj = {}
-                headers.forEach((header, i) => {
-                    obj[header] = values[i] || ''
-                })
+            // Parse data - CSV uses semicolon (;) as separator
+            const data = dataLines.map((line, index) => {
+                const values = line.split(';').map(v => v.trim())
+
+                // Expected columns based on user's format:
+                // 0: Marque, 1: Type, 2: Modèle, 3: Numéro de série (barcode),
+                // 4: Chemin organisationnel, 5: Agent, 6: Date acquisition,
+                // 7: IP, 8: MAC, 9: Code, 10: ID interne, 11: Info supplémentaire,
+                // 12: Connecté à
+
+                const obj = {
+                    barcode_id: values[3] || '', // Numéro de série = barcode
+                    brand: values[0] || '',
+                    equipment_type: values[1] || '',
+                    model: values[2] || '',
+                    serial_number: values[3] || '',
+                    org_path: values[4] || '',
+                    agent_name: values[5] || '',
+                    acquisition_date: values[6] || '',
+                    ip_address: values[7] || '',
+                    mac_address: values[8] || '',
+                    code: values[9] || '',
+                    internal_id: values[10] || '',
+                    extra_info: values[11] || '',
+                    connected_to: values[12] || ''
+                }
                 return obj
             }).filter(item => item.barcode_id) // Filter out empty rows
 
@@ -92,7 +110,7 @@ function SettingsPage({
             setUploadStatus({ type: 'error', message: 'Erreur lors de la lecture du fichier' })
         }
 
-        reader.readAsText(file)
+        reader.readAsText(file, 'UTF-8')
     }
 
     const handleFileInput = (e) => {
@@ -127,14 +145,15 @@ function SettingsPage({
     }
 
     const downloadSampleCSV = () => {
-        const sampleCSV = `barcode_id,equipment_name,equipment_type,agent_name,status,acquisition_date,notes
-1234567,Laptop Dell XPS 15,Ordinateur,Jean Dupont,En service,2023-01-15,I7 16GB RAM
-2345678,iPhone 13 Pro,Téléphone,Marie Martin,En service,2023-03-20,256GB
-3456789,Écran Dell 27",Moniteur,Pierre Durand,En service,2023-02-10,4K UHD
-4567890,Clavier mécanique,Périphérique,Sophie Bernard,En service,2023-04-05,Cherry MX Blue
-5678901,Souris Logitech MX,Périphérique,Luc Moreau,En service,2023-05-12,Sans fil`
+        const sampleCSV = `Marque;Type;Modèle;Numéro de série;Chemin organisationnel;Agent;Date acquisition;IP;MAC;Code;ID interne;Info;Connecté à
+LENOVO;Périphérique;Station d'accueil Lenovo ThinkPad USB-C Dock Gen 2;ZKW1B16J;/Services/IT/Paris;Dupont Jean;2020/11/02;;;;1166459;;"connecté à"
+LENOVO;Ordinateur;Thinkpad E595;PF2D0J69;/Services/IT/Paris;Dupont Jean;2020/09/29;10.76.51.173;00:2B:67:B2:6E:8E;Z017-1905374;1905374;;
+ALCATEL;Téléphone;8028S;FUM212412616;/Services/IT/Paris;Dupont Jean;2021/11/04;;48:7A:55:1C:29:85;;1908623;;
+ACER;Moniteur;V226HQLbd;MMLXLEE005220149374267;/Services/IT/Paris;Dupont Jean;2022/12/23;;;;2035050;TELETRAVAIL;"connecté à"
+Philips;Moniteur;242S9JML/00;UK02443026503;/Services/IT/Lyon;Martin Marie;2025/02/14;;;;2292034;;1905374
+Philips;Moniteur;242S9JML/00;UK02443026192;/Services/IT/Lyon;Martin Marie;2025/02/14;;;;2292048;;1905374`
 
-        const blob = new Blob([sampleCSV], { type: 'text/csv' })
+        const blob = new Blob([sampleCSV], { type: 'text/csv;charset=utf-8' })
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
@@ -154,7 +173,9 @@ function SettingsPage({
         const search = searchTerm.toLowerCase()
         return (
             item.barcode_id?.toLowerCase().includes(search) ||
-            item.equipment_name?.toLowerCase().includes(search) ||
+            item.serial_number?.toLowerCase().includes(search) ||
+            item.brand?.toLowerCase().includes(search) ||
+            item.model?.toLowerCase().includes(search) ||
             item.agent_name?.toLowerCase().includes(search) ||
             item.equipment_type?.toLowerCase().includes(search)
         )
@@ -193,7 +214,7 @@ function SettingsPage({
                         onChange={handleFileInput}
                         style={{ display: 'none' }}
                     />
-                    <p className="upload-hint">Format CSV requis avec colonne "barcode_id"</p>
+                    <p className="upload-hint">Format CSV avec séparateur point-virgule (;). Le numéro de série sera utilisé comme code-barres.</p>
                 </div>
 
                 {uploadStatus && (
@@ -250,25 +271,23 @@ function SettingsPage({
                             <table className="preview-table">
                                 <thead>
                                     <tr>
-                                        <th>ID Code-barres</th>
-                                        <th>Équipement</th>
+                                        <th>N° Série</th>
+                                        <th>Marque</th>
                                         <th>Type</th>
+                                        <th>Modèle</th>
                                         <th>Agent</th>
-                                        <th>Statut</th>
+                                        <th>Date acquisition</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {displayedItems.map((item, index) => (
                                         <tr key={index}>
-                                            <td className="barcode-cell">{item.barcode_id}</td>
-                                            <td>{item.equipment_name || '-'}</td>
+                                            <td className="barcode-cell">{item.serial_number || item.barcode_id}</td>
+                                            <td>{item.brand || '-'}</td>
                                             <td>{item.equipment_type || '-'}</td>
+                                            <td>{item.model || '-'}</td>
                                             <td>{item.agent_name || '-'}</td>
-                                            <td>
-                                                <span className={`status-badge ${item.status?.toLowerCase().replace(/\s/g, '-')}`}>
-                                                    {item.status || '-'}
-                                                </span>
-                                            </td>
+                                            <td>{item.acquisition_date || '-'}</td>
                                         </tr>
                                     ))}
                                 </tbody>
