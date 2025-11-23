@@ -1,15 +1,22 @@
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
-import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
+import * as zbarWasm from '@undecaf/zbar-wasm' // Namespace import to avoid bundler issues
 import './BarcodeScanner.css'
 
 const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = true }, ref) {
-  const scannerId = 'html5qr-code-full-region'
+  const videoRef = useRef(null)
+  const canvasRef = useRef(null)
+  const streamRef = useRef(null)
+  const nativeDetectorRef = useRef(null)
+  const animationFrameRef = useRef(null)
+  
   const [isScanning, setIsScanning] = useState(false)
   const [error, setError] = useState(null)
   const [debugInfo, setDebugInfo] = useState('')
   const [validationLevel, setValidationLevel] = useState(0) // 0 = aucune, 1-3 = progression, 4 = validé
+  const [usingNative, setUsingNative] = useState(false)
+  const [forceZbar, setForceZbar] = useState(false) // Debug toggle
+  
   const lastScannedCodeRef = useRef(null)
-  const html5QrCodeRef = useRef(null)
   
   // Système de validation pour éviter les fausses détections
   const validationStateRef = useRef({
@@ -33,6 +40,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
     }
   }
 
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopScanning()
@@ -51,19 +59,178 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
     validation.firstDetectionTime = null
     setValidationLevel(0)
     
-    if (html5QrCodeRef.current) {
-      try {
-        if (isScanning) {
-          await html5QrCodeRef.current.stop()
-        }
-        await html5QrCodeRef.current.clear()
-      } catch (err) {
-        console.log('Erreur lors de l\'arrêt du scanner:', err)
-      }
-      html5QrCodeRef.current = null
+    // Stop animation frame
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
     }
+    
+    // Stop video stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+    
+    // Clear video
+    if (videoRef.current) {
+      videoRef.current.srcObject = null
+    }
+    
     setIsScanning(false)
     setDebugInfo('')
+  }
+
+  const handleCodeDetected = (code, format = 'unknown') => {
+    const now = Date.now()
+    const validation = validationStateRef.current
+    
+    // Si c'est un nouveau code, réinitialiser la validation
+    if (code !== validation.currentCode) {
+      validation.currentCode = code
+      validation.detectionCount = 1
+      validation.firstDetectionTime = now
+      
+      // Annuler le timeout précédent s'il existe
+      if (validation.validationTimeout) {
+        clearTimeout(validation.validationTimeout)
+      }
+      
+      setValidationLevel(1)
+      vibrate([50]) // Vibration courte pour première détection
+      setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${REQUIRED_DETECTIONS})...`)
+    } else {
+      // Même code détecté à nouveau
+      validation.detectionCount++
+      setValidationLevel(validation.detectionCount)
+      vibrate([50]) // Vibration pour chaque détection
+      
+      // Vérifier si on a assez de détections
+      if (validation.detectionCount >= REQUIRED_DETECTIONS) {
+        // Vérifier que c'est dans la fenêtre de temps
+        const timeSinceFirst = now - validation.firstDetectionTime
+        
+        if (timeSinceFirst <= VALIDATION_WINDOW) {
+          // Code validé !
+          if (code !== lastScannedCodeRef.current) {
+            lastScannedCodeRef.current = code
+            console.log('Code validé:', code, 'Format:', format)
+            setValidationLevel(4) // Niveau validé (vert clair)
+            vibrate([200, 100, 200, 100, 200]) // Vibration longue pour validation
+            setDebugInfo(`✓ Code validé: ${code} (${format})`)
+            onScan(code)
+            
+            // Réinitialiser après 1.5 secondes pour permettre un nouveau scan
+            setTimeout(() => {
+              lastScannedCodeRef.current = null
+              setValidationLevel(0)
+              setDebugInfo(`Recherche... (${usingNative ? 'Native' : 'ZBar'})`)
+            }, 1500)
+          }
+          
+          // Réinitialiser la validation
+          validation.currentCode = null
+          validation.detectionCount = 0
+          validation.firstDetectionTime = null
+          
+          if (validation.validationTimeout) {
+            clearTimeout(validation.validationTimeout)
+            validation.validationTimeout = null
+          }
+        } else {
+          // Trop de temps écoulé, réinitialiser
+          validation.currentCode = code
+          validation.detectionCount = 1
+          validation.firstDetectionTime = now
+          setValidationLevel(1)
+          setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${REQUIRED_DETECTIONS})...`)
+        }
+      } else {
+        // Pas encore assez de détections
+        setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${REQUIRED_DETECTIONS})...`)
+        
+        // Si c'est la première détection, démarrer un timeout
+        if (validation.detectionCount === 1 && !validation.validationTimeout) {
+          validation.validationTimeout = setTimeout(() => {
+            // Timeout : réinitialiser si pas assez de détections
+            if (validation.detectionCount < REQUIRED_DETECTIONS) {
+              validation.currentCode = null
+              validation.detectionCount = 0
+              validation.firstDetectionTime = null
+              validation.validationTimeout = null
+              setValidationLevel(0)
+              setDebugInfo(`Recherche... (${usingNative ? 'Native' : 'ZBar'})`)
+            }
+          }, VALIDATION_WINDOW)
+        }
+      }
+    }
+  }
+
+  const scanFrame = async () => {
+    const video = videoRef.current
+    const canvas = canvasRef.current
+    
+    if (!video || !canvas || !isScanning) {
+      return
+    }
+    
+    const ctx = canvas.getContext('2d')
+    
+    // Draw current video frame to canvas
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    
+    try {
+      if (usingNative && nativeDetectorRef.current && !forceZbar) {
+        // --- STRATEGY A: NATIVE DETECTOR ---
+        const barcodes = await nativeDetectorRef.current.detect(video)
+        
+        if (barcodes.length > 0) {
+          const barcode = barcodes[0]
+          handleCodeDetected(barcode.rawValue, barcode.format)
+          
+          // Draw bounding box
+          if (barcode.boundingBox) {
+            ctx.strokeStyle = '#00ff00'
+            ctx.lineWidth = 3
+            ctx.strokeRect(
+              barcode.boundingBox.x,
+              barcode.boundingBox.y,
+              barcode.boundingBox.width,
+              barcode.boundingBox.height
+            )
+          }
+        }
+      } else {
+        // --- STRATEGY B: ZBAR WASM ---
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        const results = await zbarWasm.scanImageData(imageData)
+        
+        if (results.length > 0) {
+          const result = results[0]
+          const decoded = result.decode()
+          handleCodeDetected(decoded, result.typeName)
+          
+          // Draw bounding box from points
+          if (result.points && result.points.length > 0) {
+            ctx.strokeStyle = '#00ff00'
+            ctx.lineWidth = 3
+            ctx.beginPath()
+            ctx.moveTo(result.points[0].x, result.points[0].y)
+            for (let i = 1; i < result.points.length; i++) {
+              ctx.lineTo(result.points[i].x, result.points[i].y)
+            }
+            ctx.closePath()
+            ctx.stroke()
+          }
+        }
+      }
+    } catch (err) {
+      // Ignore scanning errors, they're normal when no barcode is present
+      // console.debug('Scan error:', err)
+    }
+    
+    // Continue scanning
+    animationFrameRef.current = requestAnimationFrame(scanFrame)
   }
 
   const startScanning = async () => {
@@ -71,169 +238,62 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
       setError(null)
       setDebugInfo('Initialisation de la caméra...')
 
-      // Créer une instance Html5Qrcode
-      if (!html5QrCodeRef.current) {
-        html5QrCodeRef.current = new Html5Qrcode(scannerId)
-      }
-
-      const html5QrCode = html5QrCodeRef.current
-
-      // Configurationgit pour les codes-barres français (EAN-13, EAN-8, etc.)
-      // Calculer la taille optimale de la zone de scan pour détecter les petits codes-barres
-      const getOptimalScanBox = () => {
-        // Utiliser une zone plus grande pour mieux détecter les petits codes-barres
-        // On utilise une fonction pour calculer dynamiquement
-        const viewportWidth = window.innerWidth || 640
-        const viewportHeight = window.innerHeight || 480
-        
-        // Zone de scan plus grande : jusqu'à 90% de la largeur pour mieux capturer les petits codes
-        // Pour les codes-barres linéaires, on privilégie une zone large
-        const maxWidth = Math.min(viewportWidth * 0.9, 600)
-        const maxHeight = Math.min(viewportHeight * 0.5, 300)
-        
-        return {
-          width: Math.max(400, maxWidth),
-          height: Math.max(180, maxHeight)
-        }
-      }
-
-      const scanBox = getOptimalScanBox()
-
-      const config = {
-        fps: 10, // Frames par seconde augmentées pour meilleure détection
-        qrbox: scanBox, // Zone de scan optimisée pour petits codes-barres
-        aspectRatio: 1.0,
-        // Formats supportés - focus sur les codes-barres linéaires
-        formatsToSupport: [
-          Html5QrcodeSupportedFormats.EAN_13,
-          Html5QrcodeSupportedFormats.EAN_8,
-          Html5QrcodeSupportedFormats.CODE_128,
-          Html5QrcodeSupportedFormats.CODE_39,
-          Html5QrcodeSupportedFormats.CODE_93,
-          Html5QrcodeSupportedFormats.CODABAR,
-          Html5QrcodeSupportedFormats.UPC_A,
-          Html5QrcodeSupportedFormats.UPC_E,
-          Html5QrcodeSupportedFormats.ITF,
-          Html5QrcodeSupportedFormats.RSS_14,
-          Html5QrcodeSupportedFormats.RSS_EXPANDED,
-          Html5QrcodeSupportedFormats.QR_CODE
-        ],
-        // Utiliser la caméra arrière sur mobile avec meilleure résolution
-        videoConstraints: {
-          facingMode: 'environment',
-          // Demander une résolution plus élevée pour mieux voir les petits codes
-          width: { ideal: 1280, min: 640 },
-          height: { ideal: 720, min: 480 }
-        }
-      }
-
-      setIsScanning(true)
-      setDebugInfo('Caméra activée. Recherche de codes-barres...')
-
-      // Démarrer le scan
-      await html5QrCode.start(
-        { facingMode: 'environment' }, // Caméra arrière
-        config,
-        (decodedText, decodedResult) => {
-          // Code détecté avec succès
-          const code = decodedText
-          const format = decodedResult.result.format?.formatName || 'inconnu'
-          const now = Date.now()
-          const validation = validationStateRef.current
+      // 1. Try to initialize Native Detector (unless forced to use ZBar)
+      let nativeAvailable = false
+      if ('BarcodeDetector' in window && !forceZbar) {
+        try {
+          const formats = await window.BarcodeDetector.getSupportedFormats()
+          console.log('Native BarcodeDetector formats supportés:', formats)
           
-          // Si c'est un nouveau code, réinitialiser la validation
-          if (code !== validation.currentCode) {
-            validation.currentCode = code
-            validation.detectionCount = 1
-            validation.firstDetectionTime = now
-            
-            // Annuler le timeout précédent s'il existe
-            if (validation.validationTimeout) {
-              clearTimeout(validation.validationTimeout)
-            }
-            
-            setValidationLevel(1)
-            vibrate([50]) // Vibration courte pour première détection
-            setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${REQUIRED_DETECTIONS})...`)
-          } else {
-            // Même code détecté à nouveau
-            validation.detectionCount++
-            setValidationLevel(validation.detectionCount)
-            vibrate([50]) // Vibration pour chaque détection
-            
-            // Vérifier si on a assez de détections
-            if (validation.detectionCount >= REQUIRED_DETECTIONS) {
-              // Vérifier que c'est dans la fenêtre de temps
-              const timeSinceFirst = now - validation.firstDetectionTime
-              
-              if (timeSinceFirst <= VALIDATION_WINDOW) {
-                // Code validé !
-                if (code !== lastScannedCodeRef.current) {
-                  lastScannedCodeRef.current = code
-                  console.log('Code validé:', code, 'Format:', format)
-                  setValidationLevel(4) // Niveau validé (vert clair)
-                  vibrate([200, 100, 200, 100, 200]) // Vibration longue pour validation
-                  setDebugInfo(`✓ Code validé: ${code} (${format})`)
-                  onScan(code)
-                  
-                  // Réinitialiser après 1.5 secondes pour permettre un nouveau scan
-                  setTimeout(() => {
-                    lastScannedCodeRef.current = null
-                    setValidationLevel(0)
-                    setDebugInfo('Recherche de codes-barres...')
-                  }, 1500)
-                }
-                
-                // Réinitialiser la validation
-                validation.currentCode = null
-                validation.detectionCount = 0
-                validation.firstDetectionTime = null
-                
-                if (validation.validationTimeout) {
-                  clearTimeout(validation.validationTimeout)
-                  validation.validationTimeout = null
-                }
-              } else {
-                // Trop de temps écoulé, réinitialiser
-                validation.currentCode = code
-                validation.detectionCount = 1
-                validation.firstDetectionTime = now
-                setValidationLevel(1)
-                setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${REQUIRED_DETECTIONS})...`)
-              }
-            } else {
-              // Pas encore assez de détections
-              setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${REQUIRED_DETECTIONS})...`)
-              
-              // Si c'est la première détection, démarrer un timeout
-              if (validation.detectionCount === 1 && !validation.validationTimeout) {
-                validation.validationTimeout = setTimeout(() => {
-                  // Timeout : réinitialiser si pas assez de détections
-                  if (validation.detectionCount < REQUIRED_DETECTIONS) {
-                    validation.currentCode = null
-                    validation.detectionCount = 0
-                    validation.firstDetectionTime = null
-                    validation.validationTimeout = null
-                    setValidationLevel(0)
-                    setDebugInfo('Recherche de codes-barres...')
-                  }
-                }, VALIDATION_WINDOW)
-              }
-            }
+          if (formats.includes('code_128') || formats.includes('code_39')) {
+            nativeDetectorRef.current = new window.BarcodeDetector({
+              formats: ['code_128', 'code_39']
+            })
+            setUsingNative(true)
+            nativeAvailable = true
+            console.log('✓ Utilisation de Native BarcodeDetector')
           }
-        },
-        (errorMessage) => {
-          // Erreurs de scan (normal quand aucun code n'est détecté)
-          // On ignore les erreurs "NotFoundException" qui sont normales
-          if (!errorMessage.includes('No QR code') && 
-              !errorMessage.includes('NotFoundException') &&
-              !errorMessage.includes('No MultiFormat Readers')) {
-            console.debug('Scan en cours...', errorMessage)
-          }
+        } catch (e) {
+          console.warn('Native BarcodeDetector non disponible:', e)
         }
-      )
+      }
+      
+      if (!nativeAvailable) {
+        setUsingNative(false)
+        console.log('✓ Utilisation de ZBar WASM (fallback)')
+      }
 
-      setDebugInfo('Scan actif. Pointez vers un code-barres...')
+      // 2. Get Camera Stream (1080p for better long-range detection)
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          facingMode: 'environment',
+          width: { ideal: 1920 },
+          height: { ideal: 1080 }
+        }
+      })
+      
+      streamRef.current = stream
+      
+      // 3. Attach stream to video
+      const video = videoRef.current
+      const canvas = canvasRef.current
+      
+      if (!video || !canvas) {
+        throw new Error('Video or canvas element not found')
+      }
+      
+      video.srcObject = stream
+      await video.play()
+      
+      // 4. Set canvas size to match video
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      
+      setIsScanning(true)
+      setDebugInfo(`Scan actif... (${nativeAvailable ? 'Native' : 'ZBar'})`)
+      
+      // 5. Start scanning loop
+      scanFrame()
 
     } catch (err) {
       console.error('Erreur lors du scan:', err)
@@ -250,7 +310,6 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
       
       setIsScanning(false)
       setDebugInfo('')
-      html5QrCodeRef.current = null
     }
   }
 
@@ -260,6 +319,16 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
       stopScanning()
     } else {
       startScanning()
+    }
+  }
+
+  const handleToggleEngine = () => {
+    setForceZbar(!forceZbar)
+    if (isScanning) {
+      // Restart scanning with new engine
+      stopScanning().then(() => {
+        setTimeout(() => startScanning(), 100)
+      })
     }
   }
 
@@ -283,15 +352,24 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
       <div className="scanner-layout">
         <div className="scanner-header-compact">
           <h2>Scanner de codes-barres</h2>
-          {enabled && (
-            <button 
-              onClick={handleToggleScan} 
-              className={`scan-btn-compact ${isScanning ? 'scanning' : ''}`}
-              title={isScanning ? 'Arrêter la session' : 'Démarrer la session'}
+          <div className="header-controls">
+            {enabled && (
+              <button 
+                onClick={handleToggleScan} 
+                className={`scan-btn-compact ${isScanning ? 'scanning' : ''}`}
+                title={isScanning ? 'Arrêter la session' : 'Démarrer la session'}
+              >
+                {isScanning ? '⏸️' : '▶️'}
+              </button>
+            )}
+            <button
+              onClick={handleToggleEngine}
+              className="engine-toggle-btn"
+              title={forceZbar ? 'Utiliser Native (si disponible)' : 'Forcer ZBar WASM'}
             >
-              {isScanning ? '⏸️' : '▶️'}
+              {forceZbar ? '🔧 ZBar' : '⚡ Auto'}
             </button>
-          )}
+          </div>
         </div>
 
         <div className="camera-center">
@@ -302,16 +380,37 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
           )}
 
           <div className="video-wrapper">
-            <div 
-              id={scannerId}
-              style={{ width: '100%', height: '100%' }}
-              className={`scanner-video-container validation-level-${validationLevel}`}
-            />
-            {!isScanning && (
-              <div className="video-placeholder">
-                <p>📷 Appuyez sur ▶️ pour activer la caméra</p>
-              </div>
-            )}
+            <div className={`scanner-video-container validation-level-${validationLevel}`}>
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                style={{ 
+                  width: '100%', 
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: isScanning ? 'block' : 'none'
+                }}
+              />
+              <canvas
+                ref={canvasRef}
+                style={{ 
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  display: isScanning ? 'block' : 'none'
+                }}
+              />
+              {!isScanning && (
+                <div className="video-placeholder">
+                  <p>📷 Appuyez sur ▶️ pour activer la caméra</p>
+                </div>
+              )}
+            </div>
             {isScanning && validationLevel > 0 && (
               <div className={`validation-indicator validation-level-${validationLevel}`}>
                 <div className="validation-progress">
@@ -324,6 +423,12 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
           {debugInfo && isScanning && (
             <div className="debug-info-compact">
               {debugInfo}
+            </div>
+          )}
+          
+          {isScanning && (
+            <div className="engine-indicator">
+              {forceZbar ? '🔧 ZBar WASM (forcé)' : (usingNative ? '⚡ Native BarcodeDetector' : '🔧 ZBar WASM')}
             </div>
           )}
         </div>
