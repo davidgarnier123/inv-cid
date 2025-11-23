@@ -1,0 +1,145 @@
+/* Desktop Navigation (Hidden on Mobile) */
+.desktop-nav {
+    display: none;
+    background: white;
+    border-bottom: 1px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+}
+
+.nav-logo {
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: #667eea;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 0.5rem;
+    height: 100%;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 1.25rem;
+    border: none;
+    background: transparent;
+    color: #666;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 100%;
+    border-bottom: 3px solid transparent;
+}
+
+.nav-btn:hover {
+    background: #f8f9fa;
+    color: #333;
+}
+
+.nav-btn.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+    background: #f8f9ff;
+}
+
+/* Mobile Bottom Navigation (Visible only on Mobile) */
+.mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    /* Standard height */
+    background: white;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
+    /* iPhone X+ safe area */
+}
+
+.mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: #999;
+    padding: 0.25rem 0;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-nav-icon {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+    transition: transform 0.2s;
+}
+
+.mobile-nav-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+.mobile-nav-item.active {
+    color: #667eea;
+}
+
+.mobile-nav-item.active .mobile-nav-icon {
+    transform: translateY(-2px);
+}
+
+.mobile-nav-item:active {
+    background-color: #f5f5f5;
+}
+
+/* Responsive Breakpoints */
+@media (min-width: 768px) {
+    .desktop-nav {
+        display: block;
+    }
+
+    .mobile-bottom-nav {
+        display: none;
+    }
+
+    /* Add padding to bottom of main content on mobile only */
+    .app-main {
+        padding-bottom: 0;
+    }
+}
+
+@media (max-width: 767px) {
+
+    /* Add padding to bottom of main content to prevent overlap with bottom nav */
+    .app-main {
+        padding-bottom: 80px !important;
+    }
+
+    /* Hide the old main-nav if it still exists in App.css */
+    .main-nav {
+        display: none !important;
+    }
+}

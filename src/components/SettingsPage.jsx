@@ -5,12 +5,10 @@ function SettingsPage({
     equipmentDatabase,
     setEquipmentDatabase,
     scannerSettings,
-    setScannerSettings,
-    onEquipmentClick
+    setScannerSettings
 }) {
     const [databaseMeta, setDatabaseMeta] = useState(null)
     const [uploadStatus, setUploadStatus] = useState(null)
-    const [searchTerm, setSearchTerm] = useState('')
     const [isDragging, setIsDragging] = useState(false)
 
     // Load database metadata on mount
@@ -169,21 +167,6 @@ Philips;Moniteur;242S9JML/00;UK02443026192;/Services/IT/Lyon;Martin Marie;2025/0
         localStorage.setItem('scannerSettings', JSON.stringify(newSettings))
     }
 
-    const filteredDatabase = equipmentDatabase.filter(item => {
-        if (!searchTerm) return true
-        const search = searchTerm.toLowerCase()
-        return (
-            item.barcode_id?.toLowerCase().includes(search) ||
-            item.serial_number?.toLowerCase().includes(search) ||
-            item.brand?.toLowerCase().includes(search) ||
-            item.model?.toLowerCase().includes(search) ||
-            item.agent_name?.toLowerCase().includes(search) ||
-            item.equipment_type?.toLowerCase().includes(search)
-        )
-    })
-
-    const displayedItems = filteredDatabase.slice(0, 10)
-
     // Get unique agents count
     const uniqueAgents = new Set(equipmentDatabase.map(item => item.agent_name).filter(Boolean)).size
 
@@ -252,71 +235,6 @@ Philips;Moniteur;242S9JML/00;UK02443026192;/Services/IT/Lyon;Martin Marie;2025/0
                             </div>
                             <div className="stat-label">Dernière MAJ</div>
                         </div>
-                    </div>
-                )}
-
-                {/* Database Preview */}
-                {equipmentDatabase.length > 0 && (
-                    <div className="database-preview">
-                        <div className="preview-header">
-                            <h3>Recherche dans la base de données ({filteredDatabase.length} résultats)</h3>
-                            <input
-                                type="text"
-                                placeholder="🔍 Rechercher par ID, marque, modèle, agent, type..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="search-input"
-                            />
-                        </div>
-                        <div className="preview-table-container">
-                            <table className="preview-table">
-                                <thead>
-                                    <tr>
-                                        <th>ID (7 chiffres)</th>
-                                        <th>Marque</th>
-                                        <th>Type</th>
-                                        <th>Modèle</th>
-                                        <th>Agent</th>
-                                        <th>N° Série</th>
-                                        <th>Date acquisition</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredDatabase.slice(0, 50).map((item, index) => (
-                                        <tr
-                                            key={index}
-                                            onClick={() => {
-                                                if (onEquipmentClick) {
-                                                    onEquipmentClick(item)
-                                                }
-                                            }}
-                                            className="equipment-row"
-                                            title="Cliquer pour voir les détails"
-                                        >
-                                            <td className="barcode-cell id-cell">{item.barcode_id || item.internal_id}</td>
-                                            <td>{item.brand || '-'}</td>
-                                            <td>
-                                                <span className="type-badge">{item.equipment_type || '-'}</span>
-                                            </td>
-                                            <td>{item.model || '-'}</td>
-                                            <td>{item.agent_name || '-'}</td>
-                                            <td className="serial-cell">{item.serial_number || '-'}</td>
-                                            <td>{item.acquisition_date || '-'}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        {filteredDatabase.length > 50 && (
-                            <p className="preview-footer">
-                                Affichage de 50 sur {filteredDatabase.length} résultats (affinez votre recherche)
-                            </p>
-                        )}
-                        {filteredDatabase.length === 0 && searchTerm && (
-                            <p className="no-results">
-                                Aucun résultat trouvé pour "{searchTerm}"
-                            </p>
-                        )}
                     </div>
                 )}
             </section>

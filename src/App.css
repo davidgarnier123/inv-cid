@@ -1,47 +1,4 @@
 .app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: #f5f5f5;
-}
-
-/* Navigation */
-.main-nav {
-  background: white;
-  border-bottom: 2px solid #e9ecef;
-  display: flex;
-  padding: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.nav-btn {
-  flex: 1;
-  padding: 1rem 1.5rem;
-  border: none;
-  background: transparent;
-  color: #666;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  border-bottom: 3px solid transparent;
-}
-
-.nav-btn:hover {
-  background: #f8f9fa;
-  color: #333;
-}
-
-.nav-btn.active {
-  color: #667eea;
-  border-bottom-color: #667eea;
-  background: #f8f9ff;
-}
-
-.app-main {
-  flex: 1;
-  padding: 1rem;
-  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
 }
@@ -595,6 +552,7 @@
     flex-direction: column;
   }
 }
+
 /* Equipment Icons and Clickable Cards */
 .session-code-item {
   cursor: pointer;

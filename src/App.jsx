@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import BarcodeScanner from './components/BarcodeScanner'
 import InventoriesPage from './components/InventoriesPage'
 import SettingsPage from './components/SettingsPage'
+import DatabaseSearch from './components/DatabaseSearch'
+import Navigation from './components/Navigation'
 import EquipmentModal, { getEquipmentIcon } from './components/EquipmentModal'
 import './App.css'
 
@@ -15,7 +17,7 @@ const AGENTS = [
 ]
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('scan') // 'scan', 'inventories', ou 'settings'
+  const [currentPage, setCurrentPage] = useState('scan') // 'scan', 'inventories', 'settings', 'search'
   const [isSessionActive, setIsSessionActive] = useState(false)
   const [sessionCodes, setSessionCodes] = useState([])
   const [inventories, setInventories] = useState([])
@@ -153,44 +155,15 @@ function App() {
 
   return (
     <div className="app">
-      <nav className="main-nav">
-        <button
-          onClick={() => {
-            // Arrêter la caméra si on change de page
-            if (scannerRef.current && currentPage === 'scan') {
-              scannerRef.current.stopScanning()
-            }
-            setCurrentPage('scan')
-          }}
-          className={`nav-btn ${currentPage === 'scan' ? 'active' : ''}`}
-        >
-          📷 Scanner
-        </button>
-        <button
-          onClick={() => {
-            // Arrêter la caméra si on change de page
-            if (scannerRef.current && currentPage === 'scan') {
-              scannerRef.current.stopScanning()
-            }
-            setCurrentPage('inventories')
-          }}
-          className={`nav-btn ${currentPage === 'inventories' ? 'active' : ''}`}
-        >
-          📋 Inventaires ({inventories.length})
-        </button>
-        <button
-          onClick={() => {
-            // Arrêter la caméra si on change de page
-            if (scannerRef.current && currentPage === 'scan') {
-              scannerRef.current.stopScanning()
-            }
-            setCurrentPage('settings')
-          }}
-          className={`nav-btn ${currentPage === 'settings' ? 'active' : ''}`}
-        >
-          ⚙️ Paramètres
-        </button>
-      </nav>
+      <Navigation
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        onStopScanning={() => {
+          if (scannerRef.current) {
+            scannerRef.current.stopScanning()
+          }
+        }}
+      />
 
       <main className="app-main">
         {currentPage === 'scan' && (
@@ -398,6 +371,13 @@ function App() {
           </>
         )}
 
+        {currentPage === 'search' && (
+          <DatabaseSearch
+            equipmentDatabase={equipmentDatabase}
+            onEquipmentClick={setSelectedEquipment}
+          />
+        )}
+
         {currentPage === 'inventories' && (
           <InventoriesPage inventories={inventories} />
         )}
@@ -408,7 +388,6 @@ function App() {
             setEquipmentDatabase={setEquipmentDatabase}
             scannerSettings={scannerSettings}
             setScannerSettings={setScannerSettings}
-            onEquipmentClick={setSelectedEquipment}
           />
         )}
       </main>
