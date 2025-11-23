@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import BarcodeScanner from './components/BarcodeScanner'
 import InventoriesPage from './components/InventoriesPage'
+import SettingsPage from './components/SettingsPage'
 import './App.css'
 
 // Liste fictive d'agents
@@ -13,7 +14,7 @@ const AGENTS = [
 ]
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('scan') // 'scan' ou 'inventories'
+  const [currentPage, setCurrentPage] = useState('scan') // 'scan', 'inventories', ou 'settings'
   const [isSessionActive, setIsSessionActive] = useState(false)
   const [sessionCodes, setSessionCodes] = useState([])
   const [inventories, setInventories] = useState([])
@@ -22,6 +23,39 @@ function App() {
   const [showManualInput, setShowManualInput] = useState(false)
   const [manualCode, setManualCode] = useState('')
   const scannerRef = useRef(null)
+
+  // Equipment database and scanner settings
+  const [equipmentDatabase, setEquipmentDatabase] = useState([])
+  const [scannerSettings, setScannerSettings] = useState({
+    requiredDetections: 2,
+    vibrationEnabled: true
+  })
+
+  // Load equipment database and settings from localStorage on mount
+  useEffect(() => {
+    const savedDatabase = localStorage.getItem('equipmentDatabase')
+    if (savedDatabase) {
+      try {
+        setEquipmentDatabase(JSON.parse(savedDatabase))
+      } catch (e) {
+        console.error('Error loading equipment database:', e)
+      }
+    }
+
+    const savedSettings = localStorage.getItem('scannerSettings')
+    if (savedSettings) {
+      try {
+        setScannerSettings(JSON.parse(savedSettings))
+      } catch (e) {
+        console.error('Error loading scanner settings:', e)
+      }
+    }
+  }, [])
+
+  // Get equipment info by barcode ID
+  const getEquipmentInfo = (barcodeId) => {
+    return equipmentDatabase.find(item => item.barcode_id === barcodeId)
+  }
 
   const handleScan = (code) => {
     if (!isSessionActive) return
@@ -48,7 +82,7 @@ function App() {
     if (scannerRef.current) {
       scannerRef.current.stopScanning()
     }
-    
+
     if (sessionCodes.length > 0) {
       setShowAgentForm(true)
       setIsSessionActive(false)
@@ -62,7 +96,7 @@ function App() {
     if (scannerRef.current) {
       scannerRef.current.stopScanning()
     }
-    
+
     setIsSessionActive(false)
     setSessionCodes([])
     setShowAgentForm(false)
@@ -95,13 +129,13 @@ function App() {
   const handleManualCodeSubmit = (e) => {
     e.preventDefault()
     const code = manualCode.trim()
-    
+
     if (code.length > 0) {
       // Démarrer une session si elle n'est pas active
       if (!isSessionActive) {
         setIsSessionActive(true)
       }
-      
+
       // Vérifier si le code existe déjà dans la session
       if (!sessionCodes.includes(code)) {
         setSessionCodes(prev => [...prev, code])
@@ -116,7 +150,7 @@ function App() {
   return (
     <div className="app">
       <nav className="main-nav">
-        <button 
+        <button
           onClick={() => {
             // Arrêter la caméra si on change de page
             if (scannerRef.current && currentPage === 'scan') {
@@ -128,7 +162,7 @@ function App() {
         >
           📷 Scanner
         </button>
-        <button 
+        <button
           onClick={() => {
             // Arrêter la caméra si on change de page
             if (scannerRef.current && currentPage === 'scan') {
@@ -139,6 +173,18 @@ function App() {
           className={`nav-btn ${currentPage === 'inventories' ? 'active' : ''}`}
         >
           📋 Inventaires ({inventories.length})
+        </button>
+        <button
+          onClick={() => {
+            // Arrêter la caméra si on change de page
+            if (scannerRef.current && currentPage === 'scan') {
+              scannerRef.current.stopScanning()
+            }
+            setCurrentPage('settings')
+          }}
+          className={`nav-btn ${currentPage === 'settings' ? 'active' : ''}`}
+        >
+          ⚙️ Paramètres
         </button>
       </nav>
 
@@ -170,34 +216,58 @@ function App() {
 
             {isSessionActive && (
               <>
-                <BarcodeScanner 
+                <BarcodeScanner
                   ref={scannerRef}
-                  onScan={handleScan} 
-                  enabled={isSessionActive} 
+                  onScan={handleScan}
+                  enabled={isSessionActive}
+                  requiredDetections={scannerSettings.requiredDetections}
+                  vibrationEnabled={scannerSettings.vibrationEnabled}
                 />
-                
+
                 <div className="session-codes">
                   <div className="session-codes-header">
                     <span>Codes scannés dans cette session ({sessionCodes.length})</span>
                   </div>
                   {sessionCodes.length > 0 && (
                     <div className="session-codes-list">
-                      {sessionCodes.map((code, index) => (
-                        <div key={index} className="session-code-item">
-                          <span className="code-value">{code}</span>
-                          <button 
-                            onClick={() => removeCodeFromSession(code)}
-                            className="remove-code-btn"
-                            title="Retirer ce code"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
+                      {sessionCodes.map((code, index) => {
+                        const equipmentInfo = getEquipmentInfo(code)
+                        return (
+                          <div key={index} className="session-code-item">
+                            <div className="code-header">
+                              <span className="code-value">{code}</span>
+                              <button
+                                onClick={() => removeCodeFromSession(code)}
+                                className="remove-code-btn"
+                                title="Retirer ce code"
+                              >
+                                ×
+                              </button>
+                            </div>
+                            {equipmentInfo && (
+                              <div className="equipment-details">
+                                <span className="equipment-name">
+                                  📦 {equipmentInfo.equipment_name || 'Sans nom'}
+                                </span>
+                                {equipmentInfo.equipment_type && (
+                                  <span className="equipment-type">
+                                    {equipmentInfo.equipment_type}
+                                  </span>
+                                )}
+                                {equipmentInfo.agent_name && (
+                                  <span className="equipment-agent">
+                                    👤 {equipmentInfo.agent_name}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
                     </div>
                   )}
                   <div className="session-codes-footer">
-                    <button 
+                    <button
                       onClick={() => setShowManualInput(true)}
                       className="manual-input-btn-footer"
                       title="Saisir un code-barres manuellement"
@@ -214,7 +284,7 @@ function App() {
                 <div className="manual-input-content">
                   <div className="manual-input-header">
                     <h3>Saisie manuelle</h3>
-                    <button 
+                    <button
                       onClick={() => {
                         setShowManualInput(false)
                         setManualCode('')
@@ -244,7 +314,7 @@ function App() {
                       <button type="submit" className="add-manual-code-btn">
                         ✓ Ajouter
                       </button>
-                      <button 
+                      <button
                         type="button"
                         onClick={() => {
                           setShowManualInput(false)
@@ -264,7 +334,7 @@ function App() {
               <div className="agent-form">
                 <h3>Finaliser l'inventaire</h3>
                 <p className="form-info">{sessionCodes.length} code(s) à associer</p>
-                
+
                 <div className="form-group">
                   <label htmlFor="agent-select">Sélectionner un agent :</label>
                   <select
@@ -283,8 +353,8 @@ function App() {
                 </div>
 
                 <div className="form-actions">
-                  <button 
-                    onClick={createInventory} 
+                  <button
+                    onClick={createInventory}
                     className="create-inventory-btn"
                     disabled={!selectedAgent}
                   >
@@ -301,6 +371,15 @@ function App() {
 
         {currentPage === 'inventories' && (
           <InventoriesPage inventories={inventories} />
+        )}
+
+        {currentPage === 'settings' && (
+          <SettingsPage
+            equipmentDatabase={equipmentDatabase}
+            setEquipmentDatabase={setEquipmentDatabase}
+            scannerSettings={scannerSettings}
+            setScannerSettings={setScannerSettings}
+          />
         )}
       </main>
     </div>

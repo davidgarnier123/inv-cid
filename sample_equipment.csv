@@ -1,0 +1,16 @@
+barcode_id,equipment_name,equipment_type,agent_name,status,acquisition_date,notes
+1234567,Laptop Dell XPS 15,Ordinateur,Jean Dupont,En service,2023-01-15,I7 16GB RAM
+2345678,iPhone 13 Pro,Téléphone,Marie Martin,En service,2023-03-20,256GB
+3456789,Écran Dell 27",Moniteur,Pierre Durand,En service,2023-02-10,4K UHD
+4567890,Clavier mécanique,Périphérique,Sophie Bernard,En service,2023-04-05,Cherry MX Blue
+5678901,Souris Logitech MX,Périphérique,Luc Moreau,En service,2023-05-12,Sans fil
+6789012,MacBook Pro 14",Ordinateur,Jean Dupont,En service,2023-06-01,M1 Pro 32GB
+7890123,iPad Pro 12.9",Tablette,Marie Martin,En service,2023-07-15,512GB
+8901234,Samsung Galaxy S23,Téléphone,Pierre Durand,En service,2023-08-20,128GB
+9012345,Webcam Logitech C920,Périphérique,Sophie Bernard,En service,2023-09-10,Full HD
+0123456,Casque Bose QC35,Périphérique,Luc Moreau,En service,2023-10-05,Bluetooth
+1111111,Station d'accueil USB-C,Périphérique,Jean Dupont,En service,2023-11-12,Triple display
+2222222,Disque dur externe 2TB,Stockage,Marie Martin,En service,2023-12-01,SSD portable
+3333333,Imprimante HP LaserJet,Imprimante,Pierre Durand,En maintenance,2024-01-15,Maintenance préventive
+4444444,Scanner portable,Périphérique,Sophie Bernard,En service,2024-02-20,Epson WorkForce
+5555555,Switch réseau 8 ports,Réseau,Luc Moreau,En service,2024-03-10,Gigabit Ethernet

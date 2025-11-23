@@ -2,22 +2,22 @@ import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 're
 import * as zbarWasm from '@undecaf/zbar-wasm' // Namespace import to avoid bundler issues
 import './BarcodeScanner.css'
 
-const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = true }, ref) {
+const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = true, requiredDetections = 2, vibrationEnabled = true }, ref) {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const streamRef = useRef(null)
   const nativeDetectorRef = useRef(null)
   const animationFrameRef = useRef(null)
-  
+
   const [isScanning, setIsScanning] = useState(false)
   const [error, setError] = useState(null)
   const [debugInfo, setDebugInfo] = useState('')
   const [validationLevel, setValidationLevel] = useState(0) // 0 = aucune, 1-3 = progression, 4 = validé
   const [usingNative, setUsingNative] = useState(false)
   const [forceZbar, setForceZbar] = useState(false) // Debug toggle
-  
+
   const lastScannedCodeRef = useRef(null)
-  
+
   // Système de validation pour éviter les fausses détections
   const validationStateRef = useRef({
     currentCode: null,
@@ -25,12 +25,12 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
     firstDetectionTime: null,
     validationTimeout: null
   })
-  
-  const REQUIRED_DETECTIONS = 3 // Nombre de détections consécutives requises
+
   const VALIDATION_WINDOW = 800 // Fenêtre de temps en ms pour valider
 
   // Fonction pour déclencher une vibration
   const vibrate = (pattern = [100]) => {
+    if (!vibrationEnabled) return // Skip if vibration is disabled in settings
     if ('vibrate' in navigator) {
       try {
         navigator.vibrate(pattern)
@@ -58,24 +58,24 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
     validation.detectionCount = 0
     validation.firstDetectionTime = null
     setValidationLevel(0)
-    
+
     // Stop animation frame
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
       animationFrameRef.current = null
     }
-    
+
     // Stop video stream
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop())
       streamRef.current = null
     }
-    
+
     // Clear video
     if (videoRef.current) {
       videoRef.current.srcObject = null
     }
-    
+
     setIsScanning(false)
     setDebugInfo('')
   }
@@ -83,32 +83,32 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
   const handleCodeDetected = (code, format = 'unknown') => {
     const now = Date.now()
     const validation = validationStateRef.current
-    
+
     // Si c'est un nouveau code, réinitialiser la validation
     if (code !== validation.currentCode) {
       validation.currentCode = code
       validation.detectionCount = 1
       validation.firstDetectionTime = now
-      
+
       // Annuler le timeout précédent s'il existe
       if (validation.validationTimeout) {
         clearTimeout(validation.validationTimeout)
       }
-      
+
       setValidationLevel(1)
       vibrate([50]) // Vibration courte pour première détection
-      setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${REQUIRED_DETECTIONS})...`)
+      setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${requiredDetections})...`)
     } else {
       // Même code détecté à nouveau
       validation.detectionCount++
       setValidationLevel(validation.detectionCount)
       vibrate([50]) // Vibration pour chaque détection
-      
+
       // Vérifier si on a assez de détections
-      if (validation.detectionCount >= REQUIRED_DETECTIONS) {
+      if (validation.detectionCount >= requiredDetections) {
         // Vérifier que c'est dans la fenêtre de temps
         const timeSinceFirst = now - validation.firstDetectionTime
-        
+
         if (timeSinceFirst <= VALIDATION_WINDOW) {
           // Code validé !
           if (code !== lastScannedCodeRef.current) {
@@ -118,7 +118,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
             vibrate([200, 100, 200, 100, 200]) // Vibration longue pour validation
             setDebugInfo(`✓ Code validé: ${code} (${format})`)
             onScan(code)
-            
+
             // Réinitialiser après 1.5 secondes pour permettre un nouveau scan
             setTimeout(() => {
               lastScannedCodeRef.current = null
@@ -126,12 +126,12 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
               setDebugInfo(`Recherche... (${usingNative ? 'Native' : 'ZBar'})`)
             }, 1500)
           }
-          
+
           // Réinitialiser la validation
           validation.currentCode = null
           validation.detectionCount = 0
           validation.firstDetectionTime = null
-          
+
           if (validation.validationTimeout) {
             clearTimeout(validation.validationTimeout)
             validation.validationTimeout = null
@@ -142,17 +142,17 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
           validation.detectionCount = 1
           validation.firstDetectionTime = now
           setValidationLevel(1)
-          setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${REQUIRED_DETECTIONS})...`)
+          setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${requiredDetections})...`)
         }
       } else {
         // Pas encore assez de détections
-        setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${REQUIRED_DETECTIONS})...`)
-        
+        setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${requiredDetections})...`)
+
         // Si c'est la première détection, démarrer un timeout
         if (validation.detectionCount === 1 && !validation.validationTimeout) {
           validation.validationTimeout = setTimeout(() => {
             // Timeout : réinitialiser si pas assez de détections
-            if (validation.detectionCount < REQUIRED_DETECTIONS) {
+            if (validation.detectionCount < requiredDetections) {
               validation.currentCode = null
               validation.detectionCount = 0
               validation.firstDetectionTime = null
@@ -169,25 +169,25 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
   const scanFrame = async () => {
     const video = videoRef.current
     const canvas = canvasRef.current
-    
+
     if (!video || !canvas || !isScanning) {
       return
     }
-    
+
     const ctx = canvas.getContext('2d')
-    
+
     // Draw current video frame to canvas
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-    
+
     try {
       if (usingNative && nativeDetectorRef.current && !forceZbar) {
         // --- STRATEGY A: NATIVE DETECTOR ---
         const barcodes = await nativeDetectorRef.current.detect(video)
-        
+
         if (barcodes.length > 0) {
           const barcode = barcodes[0]
           handleCodeDetected(barcode.rawValue, barcode.format)
-          
+
           // Draw bounding box
           if (barcode.boundingBox) {
             ctx.strokeStyle = '#00ff00'
@@ -204,12 +204,12 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
         // --- STRATEGY B: ZBAR WASM ---
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
         const results = await zbarWasm.scanImageData(imageData)
-        
+
         if (results.length > 0) {
           const result = results[0]
           const decoded = result.decode()
           handleCodeDetected(decoded, result.typeName)
-          
+
           // Draw bounding box from points
           if (result.points && result.points.length > 0) {
             ctx.strokeStyle = '#00ff00'
@@ -228,7 +228,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
       // Ignore scanning errors, they're normal when no barcode is present
       // console.debug('Scan error:', err)
     }
-    
+
     // Continue scanning
     animationFrameRef.current = requestAnimationFrame(scanFrame)
   }
@@ -244,7 +244,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
         try {
           const formats = await window.BarcodeDetector.getSupportedFormats()
           console.log('Native BarcodeDetector formats supportés:', formats)
-          
+
           if (formats.includes('code_128') || formats.includes('code_39')) {
             nativeDetectorRef.current = new window.BarcodeDetector({
               formats: ['code_128', 'code_39']
@@ -257,7 +257,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
           console.warn('Native BarcodeDetector non disponible:', e)
         }
       }
-      
+
       if (!nativeAvailable) {
         setUsingNative(false)
         console.log('✓ Utilisation de ZBar WASM (fallback)')
@@ -265,39 +265,39 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
 
       // 2. Get Camera Stream (1080p for better long-range detection)
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { 
+        video: {
           facingMode: 'environment',
           width: { ideal: 1920 },
           height: { ideal: 1080 }
         }
       })
-      
+
       streamRef.current = stream
-      
+
       // 3. Attach stream to video
       const video = videoRef.current
       const canvas = canvasRef.current
-      
+
       if (!video || !canvas) {
         throw new Error('Video or canvas element not found')
       }
-      
+
       video.srcObject = stream
       await video.play()
-      
+
       // 4. Set canvas size to match video
       canvas.width = video.videoWidth
       canvas.height = video.videoHeight
-      
+
       setIsScanning(true)
       setDebugInfo(`Scan actif... (${nativeAvailable ? 'Native' : 'ZBar'})`)
-      
+
       // 5. Start scanning loop
       scanFrame()
 
     } catch (err) {
       console.error('Erreur lors du scan:', err)
-      
+
       if (err.name === 'NotAllowedError' || err.message?.includes('Permission denied')) {
         setError('Accès à la caméra refusé. Veuillez autoriser l\'accès dans les paramètres de votre navigateur.')
       } else if (err.name === 'NotFoundError' || err.message?.includes('No camera')) {
@@ -307,7 +307,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
       } else {
         setError(`Erreur: ${err.message || 'Impossible de démarrer le scanner'}`)
       }
-      
+
       setIsScanning(false)
       setDebugInfo('')
     }
@@ -354,8 +354,8 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
           <h2>Scanner de codes-barres</h2>
           <div className="header-controls">
             {enabled && (
-              <button 
-                onClick={handleToggleScan} 
+              <button
+                onClick={handleToggleScan}
                 className={`scan-btn-compact ${isScanning ? 'scanning' : ''}`}
                 title={isScanning ? 'Arrêter la session' : 'Démarrer la session'}
               >
@@ -386,8 +386,8 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
                 autoPlay
                 playsInline
                 muted
-                style={{ 
-                  width: '100%', 
+                style={{
+                  width: '100%',
                   height: '100%',
                   objectFit: 'cover',
                   display: isScanning ? 'block' : 'none'
@@ -395,7 +395,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
               />
               <canvas
                 ref={canvasRef}
-                style={{ 
+                style={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
@@ -414,7 +414,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
             {isScanning && validationLevel > 0 && (
               <div className={`validation-indicator validation-level-${validationLevel}`}>
                 <div className="validation-progress">
-                  <div className="validation-bar" style={{ width: `${(validationLevel / REQUIRED_DETECTIONS) * 100}%` }}></div>
+                  <div className="validation-bar" style={{ width: `${(validationLevel / requiredDetections) * 100}%` }}></div>
                 </div>
               </div>
             )}
@@ -425,7 +425,7 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
               {debugInfo}
             </div>
           )}
-          
+
           {isScanning && (
             <div className="engine-indicator">
               {forceZbar ? '🔧 ZBar WASM (forcé)' : (usingNative ? '⚡ Native BarcodeDetector' : '🔧 ZBar WASM')}
