@@ -242,7 +242,12 @@ function App() {
                           <div
                             key={index}
                             className="session-code-item"
-                            onClick={() => equipmentInfo && setSelectedEquipment(equipmentInfo)}
+                            onClick={() => {
+                              if (equipmentInfo) {
+                                console.log('Opening modal for:', equipmentInfo)
+                                setSelectedEquipment(equipmentInfo)
+                              }
+                            }}
                           >
                             <div className="code-header">
                               <div className="code-header-left">
@@ -409,10 +414,13 @@ function App() {
 
       {/* Equipment Detail Modal */}
       {selectedEquipment && (
-        <EquipmentModal
-          equipment={selectedEquipment}
-          onClose={() => setSelectedEquipment(null)}
-        />
+        <>
+          {console.log('Rendering modal with equipment:', selectedEquipment)}
+          <EquipmentModal
+            equipment={selectedEquipment}
+            onClose={() => setSelectedEquipment(null)}
+          />
+        </>
       )}
     </div>
   )

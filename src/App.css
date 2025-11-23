@@ -595,3 +595,50 @@
     flex-direction: column;
   }
 }
+/* Equipment Icons and Clickable Cards */
+.session-code-item {
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.session-code-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+.code-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.equipment-icon {
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+}
+
+.equipment-connection {
+  color: #10b981;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.view-details-hint {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.7rem;
+  color: #999;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.session-code-item:hover .view-details-hint {
+  opacity: 1;
+}
