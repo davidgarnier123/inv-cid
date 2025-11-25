@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react'
-import * as zbarWasm from '@undecaf/zbar-wasm' // Namespace import to avoid bundler issues
+import * as zbarWasm from '@undecaf/zbar-wasm'
 import './BarcodeScanner.css'
 
 const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = true, requiredDetections = 2, vibrationEnabled = true }, ref) {
@@ -12,13 +12,12 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
   const [isScanning, setIsScanning] = useState(false)
   const [error, setError] = useState(null)
   const [debugInfo, setDebugInfo] = useState('')
-  const [validationLevel, setValidationLevel] = useState(0) // 0 = aucune, 1-3 = progression, 4 = validé
+  const [validationLevel, setValidationLevel] = useState(0)
   const [usingNative, setUsingNative] = useState(false)
-  const [forceZbar, setForceZbar] = useState(false) // Default to auto/native as requested
+  const [forceZbar, setForceZbar] = useState(false)
 
   const lastScannedCodeRef = useRef(null)
 
-  // Système de validation pour éviter les fausses détections
   const validationStateRef = useRef({
     currentCode: null,
     detectionCount: 0,
@@ -26,11 +25,10 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
     validationTimeout: null
   })
 
-  const VALIDATION_WINDOW = 800 // Fenêtre de temps en ms pour valider
+  const VALIDATION_WINDOW = 800
 
-  // Fonction pour déclencher une vibration
   const vibrate = (pattern = [100]) => {
-    if (!vibrationEnabled) return // Skip if vibration is disabled in settings
+    if (!vibrationEnabled) return
     if ('vibrate' in navigator) {
       try {
         navigator.vibrate(pattern)
@@ -40,7 +38,6 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
     }
   }
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       stopScanning()
@@ -48,7 +45,6 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
   }, [])
 
   const stopScanning = async () => {
-    // Réinitialiser l'état de validation
     const validation = validationStateRef.current
     if (validation.validationTimeout) {
       clearTimeout(validation.validationTimeout)
@@ -59,19 +55,16 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
     validation.firstDetectionTime = null
     setValidationLevel(0)
 
-    // Stop animation frame
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
       animationFrameRef.current = null
     }
 
-    // Stop video stream
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop())
       streamRef.current = null
     }
 
-    // Clear video
     if (videoRef.current) {
       videoRef.current.srcObject = null
     }
@@ -84,42 +77,35 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
     const now = Date.now()
     const validation = validationStateRef.current
 
-    // Si c'est un nouveau code, réinitialiser la validation
     if (code !== validation.currentCode) {
       validation.currentCode = code
       validation.detectionCount = 1
       validation.firstDetectionTime = now
 
-      // Annuler le timeout précédent s'il existe
       if (validation.validationTimeout) {
         clearTimeout(validation.validationTimeout)
       }
 
       setValidationLevel(1)
-      vibrate([50]) // Vibration courte pour première détection
+      vibrate([50])
       setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${requiredDetections})...`)
     } else {
-      // Même code détecté à nouveau
       validation.detectionCount++
       setValidationLevel(validation.detectionCount)
-      vibrate([50]) // Vibration pour chaque détection
+      vibrate([50])
 
-      // Vérifier si on a assez de détections
       if (validation.detectionCount >= requiredDetections) {
-        // Vérifier que c'est dans la fenêtre de temps
         const timeSinceFirst = now - validation.firstDetectionTime
 
         if (timeSinceFirst <= VALIDATION_WINDOW) {
-          // Code validé !
           if (code !== lastScannedCodeRef.current) {
             lastScannedCodeRef.current = code
             console.log('Code validé:', code, 'Format:', format)
-            setValidationLevel(4) // Niveau validé (vert clair)
-            vibrate([200, 100, 200, 100, 200]) // Vibration longue pour validation
+            setValidationLevel(4)
+            vibrate([200, 100, 200, 100, 200])
             setDebugInfo(`✓ Code validé: ${code} (${format})`)
             onScan(code)
 
-            // Réinitialiser après 1.5 secondes pour permettre un nouveau scan
             setTimeout(() => {
               lastScannedCodeRef.current = null
               setValidationLevel(0)
@@ -127,7 +113,6 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
             }, 1500)
           }
 
-          // Réinitialiser la validation
           validation.currentCode = null
           validation.detectionCount = 0
           validation.firstDetectionTime = null
@@ -137,7 +122,6 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
             validation.validationTimeout = null
           }
         } else {
-          // Trop de temps écoulé, réinitialiser
           validation.currentCode = code
           validation.detectionCount = 1
           validation.firstDetectionTime = now
@@ -145,13 +129,10 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
           setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${requiredDetections})...`)
         }
       } else {
-        // Pas encore assez de détections
         setDebugInfo(`Détection: ${code} (${validation.detectionCount}/${requiredDetections})...`)
 
-        // Si c'est la première détection, démarrer un timeout
         if (validation.detectionCount === 1 && !validation.validationTimeout) {
           validation.validationTimeout = setTimeout(() => {
-            // Timeout : réinitialiser si pas assez de détections
             if (validation.detectionCount < requiredDetections) {
               validation.currentCode = null
               validation.detectionCount = 0
@@ -170,27 +151,21 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
     const video = videoRef.current
     const canvas = canvasRef.current
 
-    // Vérifier que le stream est actif plutôt que isScanning
-    // pour éviter le problème de timing avec le state React
     if (!video || !canvas || !streamRef.current) {
       return
     }
 
     const ctx = canvas.getContext('2d')
-
-    // Draw current video frame to canvas
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
 
     try {
       if (usingNative && nativeDetectorRef.current && !forceZbar) {
-        // --- STRATEGY A: NATIVE DETECTOR ---
         const barcodes = await nativeDetectorRef.current.detect(video)
 
         if (barcodes.length > 0) {
           const barcode = barcodes[0]
           handleCodeDetected(barcode.rawValue, barcode.format)
 
-          // Draw bounding box
           if (barcode.boundingBox) {
             ctx.strokeStyle = '#00ff00'
             ctx.lineWidth = 3
@@ -203,7 +178,6 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
           }
         }
       } else {
-        // --- STRATEGY B: ZBAR WASM ---
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
         const results = await zbarWasm.scanImageData(imageData)
 
@@ -212,7 +186,6 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
           const decoded = result.decode()
           handleCodeDetected(decoded, result.typeName)
 
-          // Draw bounding box from points
           if (result.points && result.points.length > 0) {
             ctx.strokeStyle = '#00ff00'
             ctx.lineWidth = 3
@@ -227,11 +200,9 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
         }
       }
     } catch (err) {
-      // Ignore scanning errors, they're normal when no barcode is present
-      // console.debug('Scan error:', err)
+      // Ignore scanning errors
     }
 
-    // Continue scanning
     animationFrameRef.current = requestAnimationFrame(scanFrame)
   }
 
@@ -240,12 +211,13 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
       setError(null)
       setDebugInfo('Initialisation de la caméra...')
 
-      // 1. Try to initialize Native Detector (unless forced to use ZBar)
       let nativeAvailable = false
+      console.log('🔍 Mode sélectionné:', forceZbar ? 'ZBar (forcé)' : 'Auto (Native si disponible)')
+
       if ('BarcodeDetector' in window && !forceZbar) {
         try {
           const formats = await window.BarcodeDetector.getSupportedFormats()
-          console.log('Native BarcodeDetector formats supportés:', formats)
+          console.log('📋 Native BarcodeDetector formats supportés:', formats)
 
           if (formats.includes('code_128') || formats.includes('code_39')) {
             nativeDetectorRef.current = new window.BarcodeDetector({
@@ -253,32 +225,36 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
             })
             setUsingNative(true)
             nativeAvailable = true
-            console.log('✓ Utilisation de Native BarcodeDetector')
+            console.log('✅ Utilisation de Native BarcodeDetector')
+          } else {
+            console.log('⚠️ Native BarcodeDetector ne supporte pas Code 128/39')
           }
         } catch (e) {
-          console.warn('Native BarcodeDetector non disponible:', e)
+          console.warn('❌ Native BarcodeDetector non disponible:', e)
         }
+      } else if (forceZbar) {
+        console.log('🔧 Mode ZBar forcé par utilisateur')
+      } else {
+        console.log('❌ API BarcodeDetector non disponible dans ce navigateur')
       }
 
       if (!nativeAvailable) {
         setUsingNative(false)
-        console.log('✓ Utilisation de ZBar WASM (fallback)')
+        nativeDetectorRef.current = null
+        console.log('🔧 Utilisation de ZBar WASM (fallback)')
       }
 
-      // 2. Get Camera Stream (1080p for better long-range detection)
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'environment',
           width: { ideal: 1920 },
           height: { ideal: 1080 },
-          // Enhanced Mobile Focus: significantly improves barcode detection on smartphones
           advanced: [{ focusMode: "continuous" }, { focusMode: "macro" }]
         }
       })
 
       streamRef.current = stream
 
-      // 3. Attach stream to video
       const video = videoRef.current
       const canvas = canvasRef.current
 
@@ -289,14 +265,12 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
       video.srcObject = stream
       await video.play()
 
-      // 4. Set canvas size to match video
       canvas.width = video.videoWidth
       canvas.height = video.videoHeight
 
       setIsScanning(true)
       setDebugInfo(`Scan actif... (${nativeAvailable ? 'Native' : 'ZBar'})`)
 
-      // 5. Start scanning loop
       scanFrame()
 
     } catch (err) {
@@ -327,35 +301,37 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
   }
 
   const handleToggleEngine = () => {
-    setForceZbar(!forceZbar)
+    const newForceZbar = !forceZbar
+    setForceZbar(newForceZbar)
+
+    if (!newForceZbar) {
+      nativeDetectorRef.current = null
+      setUsingNative(false)
+    }
+
     if (isScanning) {
-      // Restart scanning with new engine
       stopScanning().then(() => {
-        setTimeout(() => startScanning(), 100)
+        setTimeout(() => startScanning(), 150)
       })
     }
   }
 
-  // Exposer la méthode stopScanning via ref
   useImperativeHandle(ref, () => ({
     stopScanning: stopScanning
   }))
 
-  // Démarrer automatiquement le scan si enabled est true
   useEffect(() => {
     if (enabled && !isScanning) {
       startScanning()
     } else if (!enabled && isScanning) {
       stopScanning()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled])
 
   return (
     <div className="scanner-container">
       <div className="scanner-layout">
         <div className="scanner-header-compact">
-
           <div className="header-controls">
             {enabled && (
               <button
