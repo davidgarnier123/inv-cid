@@ -170,7 +170,9 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
     const video = videoRef.current
     const canvas = canvasRef.current
 
-    if (!video || !canvas || !isScanning) {
+    // Vérifier que le stream est actif plutôt que isScanning
+    // pour éviter le problème de timing avec le state React
+    if (!video || !canvas || !streamRef.current) {
       return
     }
 
