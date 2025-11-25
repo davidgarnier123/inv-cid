@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './EquipmentModal.css'
 
 // Fonction pour obtenir l'icône en fonction du type d'équipement
@@ -27,19 +27,97 @@ const getEquipmentIcon = (type) => {
 }
 
 function EquipmentModal({ equipment, onClose }) {
+    const [isClosing, setIsClosing] = useState(false)
+    const sheetRef = useRef(null)
+    const startYRef = useRef(0)
+    const currentYRef = useRef(0)
+    const isDraggingRef = useRef(false)
+
+    useEffect(() => {
+        // Prevent body scroll when modal is open
+        document.body.style.overflow = 'hidden'
+        return () => {
+            document.body.style.overflow = ''
+        }
+    }, [])
+
     if (!equipment) return null
+
+    const handleClose = () => {
+        setIsClosing(true)
+        setTimeout(() => {
+            onClose()
+        }, 300) // Match CSS animation duration
+    }
 
     const handleBackdropClick = (e) => {
         if (e.target === e.currentTarget) {
-            onClose()
+            handleClose()
         }
+    }
+
+    // Touch handlers for swipe-to-close
+    const handleTouchStart = (e) => {
+        const touch = e.touches[0]
+        startYRef.current = touch.clientY
+        currentYRef.current = touch.clientY
+        isDraggingRef.current = true
+    }
+
+    const handleTouchMove = (e) => {
+        if (!isDraggingRef.current) return
+
+        const touch = e.touches[0]
+        currentYRef.current = touch.clientY
+        const deltaY = currentYRef.current - startYRef.current
+
+        // Only allow dragging down
+        if (deltaY > 0 && sheetRef.current) {
+            sheetRef.current.style.transform = `translateY(${deltaY}px)`
+            // Reduce opacity as we drag
+            const opacity = Math.max(0.3, 1 - deltaY / 500)
+            sheetRef.current.style.opacity = opacity
+        }
+    }
+
+    const handleTouchEnd = () => {
+        if (!isDraggingRef.current) return
+
+        const deltaY = currentYRef.current - startYRef.current
+
+        // If dragged down more than 100px, close the sheet
+        if (deltaY > 100) {
+            handleClose()
+        } else {
+            // Otherwise, snap back
+            if (sheetRef.current) {
+                sheetRef.current.style.transform = ''
+                sheetRef.current.style.opacity = ''
+            }
+        }
+
+        isDraggingRef.current = false
     }
 
     const icon = getEquipmentIcon(equipment.equipment_type)
 
     return (
-        <div className="equipment-detail-modal" onClick={handleBackdropClick}>
-            <div className="equipment-detail-content">
+        <div
+            className={`equipment-bottom-sheet-overlay ${isClosing ? 'closing' : ''}`}
+            onClick={handleBackdropClick}
+        >
+            <div
+                ref={sheetRef}
+                className={`equipment-bottom-sheet ${isClosing ? 'closing' : ''}`}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+            >
+                {/* Drag Handle */}
+                <div className="bottom-sheet-handle">
+                    <div className="handle-bar"></div>
+                </div>
+
                 {/* Header */}
                 <div className="equipment-detail-header">
                     <div className="equipment-detail-title">
@@ -51,7 +129,7 @@ function EquipmentModal({ equipment, onClose }) {
                             {equipment.equipment_type} • {equipment.serial_number}
                         </p>
                     </div>
-                    <button onClick={onClose} className="equipment-detail-close">
+                    <button onClick={handleClose} className="equipment-detail-close">
                         ×
                     </button>
                 </div>
