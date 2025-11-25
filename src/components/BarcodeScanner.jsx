@@ -268,7 +268,9 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
         video: {
           facingMode: 'environment',
           width: { ideal: 1920 },
-          height: { ideal: 1080 }
+          height: { ideal: 1080 },
+          // Enhanced Mobile Focus: significantly improves barcode detection on smartphones
+          advanced: [{ focusMode: "continuous" }, { focusMode: "macro" }]
         }
       })
 
