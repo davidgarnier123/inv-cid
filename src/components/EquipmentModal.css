@@ -46,120 +46,69 @@
     opacity: 1;
 }
 
-/* Equipment Bottom Sheet Overlay */
-.equipment-bottom-sheet-overlay {
+/* Equipment Modal Overlay */
+.equipment-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     z-index: 2000;
-    animation: overlayFadeIn 0.3s ease-out;
-    -webkit-tap-highlight-color: transparent;
-}
-
-.equipment-bottom-sheet-overlay.closing {
-    animation: overlayFadeOut 0.3s ease-out;
-}
-
-@keyframes overlayFadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes overlayFadeOut {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
-}
-
-/* Bottom Sheet */
-.equipment-bottom-sheet {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: white;
-    border-radius: 24px 24px 0 0;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
-    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    will-change: transform;
-    -webkit-overflow-scrolling: touch;
-}
-
-.equipment-bottom-sheet.closing {
-    animation: slideDown 0.3s cubic-bezier(0.7, 0, 0.84, 0);
-}
-
-@keyframes slideUp {
-    from {
-        transform: translateY(100%);
-    }
-
-    to {
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideDown {
-    from {
-        transform: translateY(0);
-    }
-
-    to {
-        transform: translateY(100%);
-    }
-}
-
-/* Drag Handle */
-.bottom-sheet-handle {
     display: flex;
+    align-items: center;
     justify-content: center;
-    padding: 12px 0 8px 0;
-    cursor: grab;
-    -webkit-tap-highlight-color: transparent;
+    padding: 1rem;
+    animation: fadeIn 0.2s ease-out;
 }
 
-.bottom-sheet-handle:active {
-    cursor: grabbing;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
-.handle-bar {
-    width: 40px;
-    height: 4px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 2px;
-    transition: background 0.2s;
+/* Modal Content Container */
+.equipment-modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
 }
 
-.bottom-sheet-handle:active .handle-bar {
-    background: rgba(0, 0, 0, 0.3);
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.9) translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
 }
 
-/* Header with gradient background */
-.equipment-detail-header {
+/* Header - Fixed at top with gradient */
+.equipment-modal-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 1rem 1.5rem 1.5rem;
+    padding: 1.25rem 1.5rem;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    flex-shrink: 0;
+    border-radius: 16px 16px 0 0;
 }
 
 .equipment-detail-title {
@@ -205,9 +154,12 @@
     transform: rotate(90deg);
 }
 
+/* Body - Scrollable */
 .equipment-detail-body {
     padding: 1.5rem;
-    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
 }
 
 .detail-section {
@@ -318,17 +270,17 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .equipment-bottom-sheet {
-        max-height: 90vh;
-        border-radius: 20px 20px 0 0;
+    .equipment-modal-content {
+        max-height: 95vh;
+        border-radius: 12px;
+    }
+
+    .equipment-modal-header {
+        padding: 1rem;
     }
 
     .detail-grid {
         grid-template-columns: 1fr;
-    }
-
-    .equipment-detail-header {
-        padding: 0.75rem 1rem 1.25rem;
     }
 
     .equipment-detail-title h2 {
@@ -345,7 +297,6 @@
 
     .equipment-detail-body {
         padding: 1.25rem;
-        padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
     }
 
     .detail-section h3 {

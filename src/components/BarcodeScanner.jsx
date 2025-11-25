@@ -368,10 +368,14 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
             )}
             <button
               onClick={handleToggleEngine}
-              className="engine-toggle-btn"
-              title={forceZbar ? 'Utiliser Native (si disponible)' : 'Forcer ZBar WASM'}
+              className={`engine-mode-badge ${forceZbar ? 'zbar-mode' : 'auto-mode'}`}
+              title="Cliquer pour changer de moteur de détection"
             >
-              {forceZbar ? '🔧 ZBar' : '⚡ Auto'}
+              {forceZbar ? (
+                <><span className="mode-icon">🔧</span> ZBar</>
+              ) : (
+                <><span className="mode-icon">⚡</span> Auto</>
+              )}
             </button>
           </div>
         </div>
@@ -431,8 +435,14 @@ const BarcodeScanner = forwardRef(function BarcodeScanner({ onScan, enabled = tr
           )}
 
           {isScanning && (
-            <div className="engine-indicator">
-              {forceZbar ? '🔧 ZBar WASM (forcé)' : (usingNative ? '⚡ Native BarcodeDetector' : '🔧 ZBar WASM')}
+            <div className={`engine-status-badge ${usingNative && !forceZbar ? 'native-active' : 'zbar-active'}`}>
+              {forceZbar ? (
+                <><span className="status-icon">🔧</span> Mode ZBar (forcé)</>
+              ) : usingNative ? (
+                <><span className="status-icon">⚡</span> Mode Native (rapide)</>
+              ) : (
+                <><span className="status-icon">🔧</span> Mode ZBar (fallback)</>
+              )}
             </div>
           )}
         </div>
