@@ -256,8 +256,9 @@ Philips;Moniteur;242S9JML/00;UK02443026192;/Services/IT/Lyon;Martin Marie;2025/0
                             onChange={(e) => updateScannerSetting('requiredDetections', parseInt(e.target.value))}
                             className="setting-select"
                         >
-                            <option value={2}>2 détections</option>
-                            <option value={3}>3 détections</option>
+                            <option value={1}>1 détection (rapide)</option>
+                            <option value={2}>2 détections (recommandé)</option>
+                            <option value={3}>3 détections (précis)</option>
                         </select>
                     </div>
 

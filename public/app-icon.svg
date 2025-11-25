@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4f46e5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="scannerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="url(#bgGradient)"/>
+  
+  <!-- Scanner frame (rounded rectangle) -->
+  <rect x="96" y="140" width="320" height="232" rx="24" ry="24" fill="white" fill-opacity="0.95"/>
+  
+  <!-- Barcode lines -->
+  <g transform="translate(136, 200)">
+    <!-- Varied width barcode lines for realistic effect -->
+    <rect x="0" y="0" width="8" height="112" fill="#1f2937"/>
+    <rect x="16" y="0" width="4" height="112" fill="#1f2937"/>
+    <rect x="28" y="0" width="12" height="112" fill="#1f2937"/>
+    <rect x="48" y="0" width="4" height="112" fill="#1f2937"/>
+    <rect x="60" y="0" width="8" height="112" fill="#1f2937"/>
+    <rect x="76" y="0" width="16" height="112" fill="#1f2937"/>
+    <rect x="100" y="0" width="4" height="112" fill="#1f2937"/>
+    <rect x="112" y="0" width="8" height="112" fill="#1f2937"/>
+    <rect x="128" y="0" width="4" height="112" fill="#1f2937"/>
+    <rect x="140" y="0" width="12" height="112" fill="#1f2937"/>
+    <rect x="160" y="0" width="8" height="112" fill="#1f2937"/>
+    <rect x="176" y="0" width="4" height="112" fill="#1f2937"/>
+    <rect x="188" y="0" width="16" height="112" fill="#1f2937"/>
+    <rect x="212" y="0" width="4" height="112" fill="#1f2937"/>
+    <rect x="224" y="0" width="8" height="112" fill="#1f2937"/>
+  </g>
+  
+  <!-- Scanner beam (animated effect suggestion) -->
+  <rect x="116" y="240" width="280" height="4" fill="url(#scannerGradient)" opacity="0.7">
+    <animate attributeName="y" values="200;280;200" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.3;0.9;0.3" dur="2s" repeatCount="indefinite"/>
+  </rect>
+  
+  <!-- Corner brackets for scanner UI -->
+  <!-- Top-left -->
+  <path d="M 110 154 L 110 180 M 110 154 L 136 154" stroke="url(#scannerGradient)" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <!-- Top-right -->
+  <path d="M 402 154 L 402 180 M 402 154 L 376 154" stroke="url(#scannerGradient)" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <!-- Bottom-left -->
+  <path d="M 110 358 L 110 332 M 110 358 L 136 358" stroke="url(#scannerGradient)" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <!-- Bottom-right -->
+  <path d="M 402 358 L 402 332 M 402 358 L 376 358" stroke="url(#scannerGradient)" stroke-width="6" stroke-linecap="round" fill="none"/>
+  
+  <!-- Small check icon for success -->
+  <circle cx="400" cy="160" r="28" fill="#10b981" opacity="0.95"/>
+  <path d="M 388 160 L 396 168 L 412 152" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

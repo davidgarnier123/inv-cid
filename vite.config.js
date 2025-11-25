@@ -9,23 +9,62 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       VitePWA({
-        registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+        registerType: 'prompt',
+        injectRegister: 'auto',
+        includeAssets: ['app-icon.svg', 'vite.svg'],
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,wasm}'],
+          cleanupOutdatedCaches: true,
+          skipWaiting: true,
+          clientsClaim: true,
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-cache',
+                expiration: {
+                  maxEntries: 10,
+                  maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                },
+                cacheableResponse: {
+                  statuses: [0, 200]
+                }
+              }
+            }
+          ]
+        },
+        devOptions: {
+          enabled: true,
+          type: 'module'
+        },
         manifest: {
           name: 'Scan Inventaire',
           short_name: 'ScanInv',
           description: 'Application de scan de codes-barres pour inventaire',
-          theme_color: '#ffffff',
+          theme_color: '#4f46e5',
+          background_color: '#ffffff',
+          display: 'standalone',
+          start_url: '/',
+          scope: '/',
+          orientation: 'portrait',
           icons: [
             {
-              src: 'pwa-192x192.png',
+              src: '/app-icon.svg',
+              sizes: 'any',
+              type: 'image/svg+xml',
+              purpose: 'any maskable'
+            },
+            {
+              src: '/pwa-192x192.png',
               sizes: '192x192',
               type: 'image/png'
             },
             {
-              src: 'pwa-512x512.png',
+              src: '/pwa-512x512.png',
               sizes: '512x512',
-              type: 'image/png'
+              type: 'image/png',
+              purpose: 'any maskable'
             }
           ]
         }

@@ -5,6 +5,7 @@ import SettingsPage from './components/SettingsPage'
 import DatabaseSearch from './components/DatabaseSearch'
 import Navigation from './components/Navigation'
 import EquipmentModal, { getEquipmentIcon } from './components/EquipmentModal'
+import PWAUpdatePrompt from './components/PWAUpdatePrompt'
 
 import './App.css'
 
@@ -481,6 +482,9 @@ function App() {
           />
         </>
       )}
+
+      {/* PWA Update Prompt */}
+      <PWAUpdatePrompt />
     </div>
   )
 }
